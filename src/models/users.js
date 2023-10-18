@@ -1,55 +1,16 @@
 const dbPool = require('../config/database')
 const { sha256 } = require('js-sha256')
 
-<<<<<<< HEAD
-exports.getAllUsers = () => {
-    const query = 'select * from users'
-
-    return dbPool.execute(query)
-=======
 const getAllUsers = async (username) => {
     const query = 'select * from users where username = ?'
 
     return dbPool.execute(query, [username])
->>>>>>> 128ebf30592642182d1ff873fb20459a373c43ca
 }
 
 exports.registerUser = async (data) => {
     try {
         const [row] = await getAllUsers(data.username)
 
-<<<<<<< HEAD
-    return dbPool.execute(query, [data.username, data.password, data.name, data.email, data.bio, data.profile_picture, data.created_at])
-}
-
-exports.loginUser = async (data) => {
-    const { username, password } = data;
-
-    if (!username || !password) {
-        console.log('Username and password are required');
-        return false;
-    }
-
-    const query = 'SELECT * FROM users WHERE username = ?';
-    const [rows] = await dbPool.execute(query, [username]);
-
-    if (rows.length === 0) {
-        console.log('Username not found');
-        return false;
-    }
-
-    const user = rows[0];
-    if (user.password !== password) {
-        console.log('Incorrect password');
-        return false;
-    }
-
-    return user;
-};
-
-
-
-=======
         if (row.length > 0) {
             throw new Error('Username already exist')
         } else {
@@ -60,7 +21,7 @@ exports.loginUser = async (data) => {
                 data.profile_picture = null
             }
             data.created_at = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`
-            
+
             const query = `insert into users (username, password, name, email, bio, profile_picture, created_at) values (?, ?, ?, ?, ?, ?, ?)`
 
             // encrypt password using sha256
@@ -72,4 +33,29 @@ exports.loginUser = async (data) => {
         throw new Error(error)
     }
 }
->>>>>>> 128ebf30592642182d1ff873fb20459a373c43ca
+
+exports.loginUser = async (data) => {
+    const username = data.username
+    const password = sha256(data.password)
+
+    if (!username || !password) {
+        console.log('Username and password are required')
+        return false
+    }
+
+    const query = 'SELECT * FROM users WHERE username = ?'
+    const [rows] = await dbPool.execute(query, [username])
+
+    if (rows.length === 0) {
+        console.log('Username not found')
+        return false
+    }
+
+    const user = rows[0]
+    if (user.password !== password) {
+        console.log('Incorrect password')
+        return false
+    }
+
+    return user
+}

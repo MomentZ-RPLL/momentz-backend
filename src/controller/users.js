@@ -33,7 +33,14 @@ exports.loginUser = async (req, res) => {
         const user = await UserModels.loginUser(data);
         if (user) {
             const token = generateToken(user);
-            res.status(200).json({ token });
+            res.status(200).json({
+                status: '200',
+                message: 'Login user success',
+                data: {
+                    token: token,
+                    user: user
+                }
+            })
         } else {
             res.status(401).json({ message: 'Invalid username or password' });
         }
