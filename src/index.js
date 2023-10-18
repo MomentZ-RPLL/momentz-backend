@@ -1,17 +1,19 @@
-const express = require('express')
-const PORT = require('./utils/config').PORT
+require('dotenv').config()
+const PORT = process.env.PORT || 5000;
 
-const app = express()
-app.use(express.json())
+const express = require('express');
+
+const app = express();
+
+const usersRoutes = require('./routes/users');
+
+const middlewareLogRequest = require('./middleware/logs');
+
+app.use(middlewareLogRequest.logRequest);
+app.use(express.json());
+
+app.use('/users', usersRoutes);
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
-
-app.get("/", (req, res) => {
-  const status = {
-    status: "OK",
-    message: "Server is running"
-  }
-  res.send(status)
-})
+    console.log(`server running in port ${PORT}`)
+});
