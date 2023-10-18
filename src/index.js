@@ -13,7 +13,7 @@ app.use(middlewareLogRequest.logRequest)
 app.use(express.json())
 app.use(bodyParser.urlencoded({extended:true}));
 
-app.use('/users', usersRoutes)
+app.use('/users', usersRoutes);
 
 app.listen(PORT, () => {
     console.log(`server running in port ${PORT}`)
