@@ -1,19 +1,20 @@
 require('dotenv').config()
-const PORT = process.env.PORT || 5000;
 
-const express = require('express');
+const PORT = process.env.PORT || 3001
 
-const app = express();
+const express = require('express')
+const usersRoutes = require('./routes/users')
+const bodyParser = require('body-parser')
+const middlewareLogRequest = require('./middleware/logs')
 
-const usersRoutes = require('./routes/users');
+const app = express()
 
-const middlewareLogRequest = require('./middleware/logs');
-
-app.use(middlewareLogRequest.logRequest);
-app.use(express.json());
+app.use(middlewareLogRequest.logRequest)
+app.use(express.json())
+app.use(bodyParser.urlencoded({extended:true}));
 
 app.use('/users', usersRoutes);
 
 app.listen(PORT, () => {
     console.log(`server running in port ${PORT}`)
-});
+})
