@@ -6,7 +6,6 @@ const UsersController = require('../controller/users.js')
 
 
 //READ
-router.get('/', UsersController.getAllUsers)
 router.post('/register', UsersController.registerUser)
 
 
