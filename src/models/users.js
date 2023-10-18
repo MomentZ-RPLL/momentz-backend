@@ -1,5 +1,5 @@
 const dbPool = require('../config/database')
-
+const { sha256 } = require('js-sha256')
 
 const getAllUsers = async (username) => {
     const query = 'select * from users where username = ?'
@@ -20,8 +20,12 @@ exports.registerUser = async (data) => {
             if (data.profile_picture === undefined) {
                 data.profile_picture = null
             }
-            data.created_at = `${new Date().getDay()}/${new Date().getMonth()}/${new Date().getFullYear()}`
+            data.created_at = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`
+            
             const query = `insert into users (username, password, name, email, bio, profile_picture, created_at) values (?, ?, ?, ?, ?, ?, ?)`
+
+            // encrypt password using sha256
+            data.password = sha256(data.password)
 
             return dbPool.execute(query, [data.username, data.password, data.name, data.email, data.bio, data.profile_picture, data.created_at])
         }
