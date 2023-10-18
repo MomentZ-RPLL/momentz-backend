@@ -10,20 +10,18 @@ function generateToken(user) {
     return token;
 }
 
-
-exports.registerUser = async (req, res) => {
+const getAllUsers = async (req, res) => {
     try {
-        const data = req.body
-        const [result] = await UserModels.registerUser(data)
-
-        res.status(200).json({
-            status: '200',
-            message: 'Register user success',
+        const [data] = await UserModels.getAllUsers();
+    
+        res.json({
+            message: 'Get all user succes',
+            data: data
         })
     } catch (error) {
         res.status(500).json({
-            status: '500',
-            message: `${error.message}`,
+            message: 'Server Error',
+            serverMessage: error
         })
     }
 }
