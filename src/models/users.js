@@ -1,21 +1,24 @@
 const dbPool = require('../config/database')
+const { sha256 } = require('js-sha256')
 
+<<<<<<< HEAD
 exports.getAllUsers = () => {
     const query = 'select * from users'
 
     return dbPool.execute(query)
+=======
+const getAllUsers = async (username) => {
+    const query = 'select * from users where username = ?'
+
+    return dbPool.execute(query, [username])
+>>>>>>> 128ebf30592642182d1ff873fb20459a373c43ca
 }
 
-exports.registerUser = (data) => {
-    if (data.bio === undefined) {
-        data.bio = null
-    }
-    if (data.profile_picture === undefined) {
-        data.profile_picture = null
-    }
-    data.created_at = `${new Date().getDay()}/${new Date().getMonth()}/${new Date().getFullYear()}`
-    const query = `insert into users (username, password, name, email, bio, profile_picture, created_at) values (?, ?, ?, ?, ?, ?, ?)`
+exports.registerUser = async (data) => {
+    try {
+        const [row] = await getAllUsers(data.username)
 
+<<<<<<< HEAD
     return dbPool.execute(query, [data.username, data.password, data.name, data.email, data.bio, data.profile_picture, data.created_at])
 }
 
@@ -46,3 +49,27 @@ exports.loginUser = async (data) => {
 
 
 
+=======
+        if (row.length > 0) {
+            throw new Error('Username already exist')
+        } else {
+            if (data.bio === undefined) {
+                data.bio = null
+            }
+            if (data.profile_picture === undefined) {
+                data.profile_picture = null
+            }
+            data.created_at = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`
+            
+            const query = `insert into users (username, password, name, email, bio, profile_picture, created_at) values (?, ?, ?, ?, ?, ?, ?)`
+
+            // encrypt password using sha256
+            data.password = sha256(data.password)
+
+            return dbPool.execute(query, [data.username, data.password, data.name, data.email, data.bio, data.profile_picture, data.created_at])
+        }
+    } catch (error) {
+        throw new Error(error)
+    }
+}
+>>>>>>> 128ebf30592642182d1ff873fb20459a373c43ca
