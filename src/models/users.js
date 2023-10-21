@@ -1,34 +1,43 @@
 const dbPool = require('../config/database')
 const { sha256 } = require('js-sha256')
-
-const getAllUsers = async (username) => {
-    const query = 'select * from users where username = ?'
-
-    return dbPool.execute(query, [username])
-}
+const { getUserByUsername, getUserByEmail } = require('../utils/userUtils')
+const multer = require('multer')
 
 exports.registerUser = async (data) => {
     try {
-        const [row] = await getAllUsers(data.username)
-
-        if (row.length > 0) {
-            throw new Error('Username already exist')
-        } else {
-            if (data.bio === undefined) {
-                data.bio = null
-            }
-            if (data.profile_picture === undefined) {
-                data.profile_picture = null
-            }
-            data.created_at = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`
-
-            const query = `insert into users (username, password, name, email, bio, profile_picture, created_at) values (?, ?, ?, ?, ?, ?, ?)`
-
-            // encrypt password using sha256
-            data.password = sha256(data.password)
-
-            return dbPool.execute(query, [data.username, data.password, data.name, data.email, data.bio, data.profile_picture, data.created_at])
+        const [username] = await getUserByUsername(data.body.username)
+        if (username.length > 0) {
+            throw new Error('a user with that username already exist')
         }
+        const [email] = await getUserByEmail(data.body.email)
+        if (email.length > 0) {
+            throw new Error('a user with that email already exist')
+        }
+
+        if (data.body.bio === undefined) {
+            data.body.bio = null
+        }
+
+        if (data.file === undefined) {
+            data.file = { filename: 'default.png' }
+        }
+
+        data.body.created_at = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`
+
+        // encrypt password using sha256
+        data.body.password = sha256(data.body.password)
+
+        const query = `insert into users set ?`
+        const value = {
+            username: data.body.username,
+            password: data.body.password,
+            name: data.body.name,
+            email: data.body.email,
+            bio: data.body.bio,
+            profile_picture: data.file.filename,
+            created_at: data.body.created_at
+        }
+        return await dbPool.query(query, value)
     } catch (error) {
         throw new Error(error)
     }
