@@ -18,6 +18,10 @@ exports.registerUser = async (data) => {
             data.body.bio = null
         }
 
+        if (data.file === undefined) {
+            data.file = { filename: 'default.png' }
+        }
+
         data.body.created_at = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`
 
         // encrypt password using sha256
