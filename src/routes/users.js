@@ -9,5 +9,7 @@ const UsersController = require('../controller/users.js')
 router.post('/register', uploadProfilePicture, UsersController.registerUser)
 //LOGIN
 router.post('/login', UsersController.loginUser)
+//GET USER
+router.get('/:username', UsersController.getUser)
 
 module.exports = router
