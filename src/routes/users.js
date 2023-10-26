@@ -9,5 +9,7 @@ const UsersController = require('../controller/users.js')
 router.post('/register', uploadProfilePicture, UsersController.registerUser)
 //LOGIN
 router.post('/login', UsersController.loginUser)
+//LOGOUT
+router.post('/logout', UsersController.logoutUser)
 
 module.exports = router
