@@ -4,12 +4,6 @@ const secretKey = process.env.JWT_SECRET_KEY
 const UserModels = require('../models/users')
 const jwt = require('jsonwebtoken')
 
-function generateToken(user) {
-    const payload = { username: user.username }
-    const token = jwt.sign(payload, secretKey, { expiresIn: '1h' })
-    return token
-}
-
 exports.registerUser = async (req, res) => {
     try {
         const [result] = await UserModels.registerUser(req)
@@ -31,6 +25,7 @@ exports.loginUser = async (req, res) => {
     const user = await UserModels.loginUser(data)
     if (user) {
         const token = generateToken(user)
+        res.cookie('token', token, { maxAge: 2630000, httpOnly: true })
         res.status(200).json({
             status: '200',
             message: 'Login user success',
@@ -42,4 +37,18 @@ exports.loginUser = async (req, res) => {
     } else {
         res.status(401).json({ message: 'Invalid username or password' })
     }
+}
+
+exports.logoutUser = async (req, res) => {
+    res.clearCookie('token')
+    res.status(200).json({
+        status: '200',
+        message: 'Logout user success',
+    })
+}
+
+function generateToken(user) {
+    const payload = { username: user.username }
+    const token = jwt.sign(payload, secretKey, { expiresIn: '1h' })
+    return token
 }
