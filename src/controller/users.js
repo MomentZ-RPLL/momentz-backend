@@ -39,16 +39,16 @@ exports.loginUser = async (req, res) => {
     }
 }
 
+function generateToken(user) {
+    const payload = { username: user.username }
+    const token = jwt.sign(payload, secretKey, { expiresIn: '1h' })
+    return token
+}
+
 exports.logoutUser = async (req, res) => {
     res.clearCookie('token')
     res.status(200).json({
         status: '200',
         message: 'Logout user success',
     })
-}
-
-function generateToken(user) {
-    const payload = { username: user.username }
-    const token = jwt.sign(payload, secretKey, { expiresIn: '1h' })
-    return token
 }
