@@ -14,6 +14,6 @@ router.get('/:username', middlewareToken, UsersController.getUser)
 //LOGOUT
 router.post('/logout', UsersController.logoutUser)
 //UPDATE USER
-router.put('/:username', uploadProfilePicture, UsersController.updateUser)
+router.put('/:username',middlewareToken, uploadProfilePicture, UsersController.updateUser)
 
 module.exports = router
