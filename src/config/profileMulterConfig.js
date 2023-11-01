@@ -4,7 +4,12 @@ const path = require('path')
 const storage = multer.diskStorage({
   destination: './images/profile_pictures/',
   filename: (req, file, cb) => {
-    const username = req.user.username
+    let username
+    if (req.user.username !== undefined) {
+      username = req.user.username
+    } else if (req.body.username !== undefined) {
+      username = req.body.username
+    }
     const filename = `${file.fieldname}-${username}${path.extname(file.originalname)}`
     cb(null, filename)
   }
