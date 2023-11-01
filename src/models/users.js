@@ -1,8 +1,6 @@
 const dbPool = require('../config/database')
 const { sha256 } = require('js-sha256')
 const { getUserByUsername, getUserByEmail } = require('../utils/userUtils')
-const multer = require('multer')
-const { use } = require('../routes/users')
 
 exports.registerUser = async (data) => {
     try {

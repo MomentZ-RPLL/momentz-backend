@@ -1,7 +1,7 @@
 const express = require('express')
 
 const router = express.Router()
-const uploadProfilePicture = require('../config/multerConfig')
+const uploadProfilePicture = require('../config/profileMulterConfig')
 const UsersController = require('../controller/users.js')
 const middlewareToken = require('../middleware/auth')
 
