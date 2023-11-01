@@ -1,25 +1,36 @@
 const dbPool = require('../config/database')
 const { sha256 } = require('js-sha256')
 const { getUserByUsername, getUserByEmail } = require('../utils/userUtils')
-const multer = require('multer')
+const ErrorResponse = require('../utils/errorResponse')
 
 exports.registerUser = async (data) => {
     try {
-        const [username] = await getUserByUsername(data.body.username)
-        if (username.length > 0) {
-            throw new Error('a user with that username already exist')
+        if (data.body.username === undefined) {
+            throw new ErrorResponse(400, 'username is required')
         }
-        const [email] = await getUserByEmail(data.body.email)
-        if (email.length > 0) {
-            throw new Error('a user with that email already exist')
+        if (data.body.password === undefined) {
+            throw new ErrorResponse(400, 'password is required')
         }
-
+        if (data.body.name === undefined) {
+            throw new ErrorResponse(400, 'name is required')
+        }
+        if (data.body.email === undefined) {
+            throw new ErrorResponse(400, 'email is required')
+        }
         if (data.body.bio === undefined) {
             data.body.bio = null
         }
-
         if (data.file === undefined) {
             data.file = { filename: 'default.png' }
+        }
+
+        const [username] = await getUserByUsername(data.body.username)
+        if (username.length > 0) {
+            throw new ErrorResponse(400, 'a user with that username already exist')
+        }
+        const [email] = await getUserByEmail(data.body.email)
+        if (email.length > 0) {
+            throw new ErrorResponse(400, 'a user with that email already exist')
         }
 
         data.body.created_at = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`
@@ -39,7 +50,7 @@ exports.registerUser = async (data) => {
         }
         return await dbPool.query(query, value)
     } catch (error) {
-        throw new Error(error)
+        throw new ErrorResponse(500, error.message)
     }
 }
 
@@ -49,7 +60,7 @@ exports.loginUser = async (data) => {
 
     if (!username || !password) {
         console.log('Username and password are required')
-        return false
+        throw new ErrorResponse(400, 'Username and password are required')
     }
 
     const query = 'SELECT * FROM users WHERE username = ?'
@@ -57,22 +68,22 @@ exports.loginUser = async (data) => {
 
     if (rows.length === 0) {
         console.log('Username not found')
-        return false
+        throw new ErrorResponse(404, 'Username not found')
     }
 
     const user = rows[0]
     if (user.password !== password) {
         console.log('Incorrect password')
-        return false
+        throw new ErrorResponse(401, 'Incorrect password')
     }
 
     return user
 }
 
 exports.getUser = async (username) => {
-    const query =
+    const userQuery =
         `SELECT 
-            users.*, 
+            *,
             (SELECT COUNT(*) FROM user_follow WHERE id_following = users.id_user) AS followers_count,
             (SELECT COUNT(*) FROM user_follow WHERE id_user = users.id_user) AS following_count
         FROM 
@@ -80,8 +91,38 @@ exports.getUser = async (username) => {
         WHERE 
             users.username = ?`
 
-    return await dbPool.execute(query, [username])
+    const postsQuery =
+        `SELECT *
+        FROM 
+            posts
+        WHERE 
+            id_user = (SELECT id_user FROM users WHERE username = ?)`
+
+    const [userData] = await dbPool.execute(userQuery, [username])
+    const [postsData] = await dbPool.execute(postsQuery, [username])
+
+    if (userData.length === 0) {
+        throw new ErrorResponse(404, 'User not found')
+    }
+
+    const user = {
+        id_user: userData[0].id_user,
+        username: userData[0].username,
+        password: userData[0].password,
+        name: userData[0].name,
+        email: userData[0].email,
+        bio: userData[0].bio,
+        profile_picture: userData[0].profile_picture,
+        created_at: userData[0].created_at,
+        followers_count: userData[0].followers_count,
+        following_count: userData[0].following_count,
+        posts: postsData
+    }
+
+    return [user]
 }
+
+
 
 exports.updateUser = async (data) => {
     try {
@@ -102,6 +143,53 @@ exports.updateUser = async (data) => {
         }
         return await dbPool.query(query, [value, data.params.username])
     } catch (error) {
-        throw new Error(error)
+        throw new ErrorResponse(500, error.message)
     }
 }
+
+exports.getComment = async (id_post) => {
+    try {
+        const query = 'SELECT * FROM post_comments WHERE id_post= ?'
+        const data = await dbPool.query(query, [id_post])
+
+        return data
+    } catch (error) {
+        throw new ErrorResponse(500, error.message)
+    }
+}
+
+exports.addComment = async (id_post, comment, id_user) => {
+    try {
+        const query = 'INSERT INTO post_comments (id_post, id_user, comment, created_at) VALUES (?,?,?,?)'
+        return await dbPool.query(query, [id_post, id_user, comment, new Date()])
+
+    } catch (error) {
+        throw new ErrorResponse(500, error.message)
+    }
+}
+
+exports.getLikes = async (id_post) => {
+    try {
+        const query = 'SELECT count(id_post) AS Likes FROM post_likes WHERE id_post= ?'
+        const data = await dbPool.query(query, [id_post])
+
+        return data
+    } catch (error) {
+        throw new ErrorResponse(500, error.message)
+    }
+}
+
+// exports.addLikes = async (id_post, id_user) => {
+//     try {
+//       const checkQuery = 'SELECT * FROM post_likes WHERE id_post = ? AND id_user = ?';
+//       const checkResult = await dbPool.query(checkQuery, [id_post, id_user]);
+//       if (checkResult.length === 0) {
+//         const insertQuery = 'INSERT INTO post_likes (id_post, id_user, created_at) VALUES (?,?,?)';
+//         return await dbPool.query(insertQuery, [id_post, id_user, new Date()]);
+//       } else {
+//         return "User has already liked this post.";
+//       }
+//     } catch (error) {
+//         throw new Error(error)
+//     }
+//   }
