@@ -68,3 +68,40 @@ exports.loginUser = async (data) => {
 
     return user
 }
+
+exports.getUser = async (username) => {
+    const query =
+        `SELECT 
+            users.*, 
+            (SELECT COUNT(*) FROM user_follow WHERE id_following = users.id_user) AS followers_count,
+            (SELECT COUNT(*) FROM user_follow WHERE id_user = users.id_user) AS following_count
+        FROM 
+            users
+        WHERE 
+            users.username = ?`
+
+    return await dbPool.execute(query, [username])
+}
+
+exports.updateUser = async (data) => {
+    try {
+        if (data.body.bio === undefined) {
+            data.body.bio = null
+        }
+
+        if (data.file === undefined) {
+            data.file = { filename: 'default.png' }
+        }
+
+        const query = `update users set ? where username = ?`
+        const value = {
+            name: data.body.name,
+            email: data.body.email,
+            bio: data.body.bio,
+            profile_picture: data.file.filename
+        }
+        return await dbPool.query(query, [value, data.params.username])
+    } catch (error) {
+        throw new Error(error)
+    }
+}

@@ -52,3 +52,48 @@ exports.logoutUser = async (req, res) => {
         message: 'Logout user success',
     })
 }
+
+exports.getUser = async (req, res) => {
+    try {
+        const [result] = await UserModels.getUser(req.params.username)
+        if (result.length === 0) {
+            res.status(404).json({
+                status: '404',
+                message: 'User not found',
+            })
+        } else {
+            res.status(200).json({
+                status: '200',
+                message: 'Get user success',
+                data: result[0]
+            })
+        }
+    } catch (error) {
+        res.status(500).json({
+            status: '500',
+            message: `${error.message}`,
+        })
+    }
+}
+
+exports.updateUser = async (req, res) => {
+    try {
+        const [result] = await UserModels.updateUser(req)
+        if (result.affectedRows === 0) {
+            res.status(404).json({
+                status: '404',
+                message: 'User not found',
+            })
+        } else {
+            res.status(200).json({
+                status: '200',
+                message: 'Update user success',
+            })
+        }
+    } catch (error) {
+        res.status(500).json({
+            status: '500',
+            message: `${error.message}`,
+        })
+    }
+}
