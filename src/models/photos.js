@@ -1,10 +1,11 @@
 const dbPool = require('../config/database')
+const ErrorResponse = require('../utils/errorResponse')
 
 exports.postMedia = async (data) => {
   try {
 
     if (data.file === undefined) {
-      throw new Error('no file detected')
+      throw new ErrorResponse(400, 'file is required')
     }
     if (data.body.caption === undefined) {
       data.body.caption = ""
@@ -20,6 +21,6 @@ exports.postMedia = async (data) => {
 
     return await dbPool.query(query, value)
   } catch (error) {
-    throw new Error(error)
+    throw new ErrorResponse(500, error.message)
   }
 }

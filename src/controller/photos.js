@@ -3,6 +3,7 @@ const secretKey = process.env.JWT_SECRET_KEY
 
 const photoModels = require('../models/photos')
 const jwt = require('jsonwebtoken')
+const ErrorResponse = require('../utils/errorResponse')
 
 exports.postMedia = async (req, res) => {
     try {
@@ -13,9 +14,16 @@ exports.postMedia = async (req, res) => {
             message: 'post success',
         })
     } catch (error) {
-        res.status(500).json({
-            status: '500',
-            message: `${error.message}`,
-        })
+        if (error instanceof ErrorResponse) {
+            res.status(error.statusCode).json({
+                status: error.statusCode.toString(),
+                message: error.message,
+            })
+        } else {
+            res.status(500).json({
+                status: '500',
+                message: `${error.message}`,
+            })
+        }
     }
 }
