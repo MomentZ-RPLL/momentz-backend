@@ -2,6 +2,7 @@ const dbPool = require('../config/database')
 const { sha256 } = require('js-sha256')
 const { getUserByUsername, getUserByEmail } = require('../utils/userUtils')
 const multer = require('multer')
+const { use } = require('../routes/users')
 
 exports.registerUser = async (data) => {
     try {
@@ -105,3 +106,36 @@ exports.updateUser = async (data) => {
         throw new Error(error)
     }
 }
+
+exports.getComment = async (id_post) => {
+    try {
+        const query = 'SELECT * FROM post_comments WHERE id_post= ?';
+        const data = await dbPool.query(query, [id_post]);
+
+        return data;
+      } catch (error) {
+        throw new Error(error)
+      }
+}
+
+exports.addComment = async (id_post, comment, id_user) => {
+    try {
+        const query = 'INSERT INTO post_comments (id_post, id_user, comment, created_at) VALUES (?,?,?,?)';
+        return await dbPool.query(query, [id_post, id_user, comment, new Date()]);
+
+      } catch (error) {
+        throw new Error(error)
+      }
+}
+
+exports.getIdUser = async (username) => {
+    try {
+      const query = 'SELECT id_user FROM USERS WHERE username = ?';
+      const data = await dbPool.query(query, [username]);
+  
+      return data;
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+  

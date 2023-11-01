@@ -14,6 +14,11 @@ router.get('/:username', middlewareToken, UsersController.getUser)
 //LOGOUT
 router.post('/logout', UsersController.logoutUser)
 //UPDATE USER
-router.put('/:username',middlewareToken, uploadProfilePicture, UsersController.updateUser)
+router.put('/:username', middlewareToken, uploadProfilePicture, UsersController.updateUser)
+
+//GET COMMENT
+router.get('/:id_post/comments', middlewareToken, UsersController.getComment)
+//ADD COMMENT
+router.post('/:id_post/comments', middlewareToken, UsersController.addComment)
 
 module.exports = router

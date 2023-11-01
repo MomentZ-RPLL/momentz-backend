@@ -97,3 +97,53 @@ exports.updateUser = async (req, res) => {
         })
     }
 }
+
+exports.getComment = async (req, res) => {
+    try {
+        const [data] = await UserModels.getComment(req.params.id_post)
+        if (data.length === 0) {
+            res.status(404).json({
+                status: '404',
+                message: 'No comments found in this Post.',
+            })
+        } else {
+            res.status(200).json({
+                status: '200',
+                message: 'Sucess get Comments',
+                data: data
+            })
+        }
+    } catch (error) {
+        res.status(500).json({
+            status: '500',
+            message: `${error.message}`,
+        })
+    }
+}
+
+exports.addComment = async (req, res) => {
+    try {
+        const id_post = req.params.id_post;
+        const comment = req.body.comment;
+        const getId = await UserModels.getIdUser(req.user.username);
+        const id_user = getId[0][0].id_user;
+
+        const [data] = await UserModels.addComment(id_post, comment, id_user)
+        if (data.length === 0) {
+            res.status(404).json({
+                status: '404',
+                message: 'Add comment failed',
+            })
+        } else {
+            res.status(200).json({
+                status: '200',
+                message: 'Sucess add Comment',
+            })
+        }
+    } catch (error) {
+        res.status(500).json({
+            status: '500',
+            message: `${error.message}`,
+        })
+    }
+}
