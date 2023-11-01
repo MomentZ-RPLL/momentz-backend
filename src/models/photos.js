@@ -1,5 +1,6 @@
 const dbPool = require('../config/database')
 const ErrorResponse = require('../utils/errorResponse')
+const { getPostByPostId } = require('../utils/mediaUtils')
 
 exports.postMedia = async (data) => {
     if (data.file === undefined) {
@@ -17,4 +18,23 @@ exports.postMedia = async (data) => {
         created_at: data.body.created_at
     }
     return await dbPool.query(query, value)
+}
+
+exports.deleteMedia = async (data) => {
+    const { id_post } = data.params
+    const { id_user } = data.user
+
+    try {
+        // Check if the post with the given id exists and belongs to the authenticated user
+        const [postResult] = await getPostByPostId(id_post)
+        if (postResult.length === 0 || postResult[0].id_user !== id_user) {
+            throw new ErrorResponse(404, 'Post not found or unauthorized')
+        } else {
+            // Perform the delete operation for the post with the given id
+            const query = 'DELETE FROM posts WHERE id_post = ?'
+            return await dbPool.execute(query, [id_post])
+        }
+    } catch (error) {
+        throw error
+    }
 }
