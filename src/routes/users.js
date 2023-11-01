@@ -21,4 +21,10 @@ router.get('/:id_post/comments', middlewareToken, UsersController.getComment)
 //ADD COMMENT
 router.post('/:id_post/comments', middlewareToken, UsersController.addComment)
 
+//GET LIKES
+router.get('/:id_post/likes', middlewareToken, UsersController.getLikes)
+//ADD LIKES
+router.post('/:id_post/likes', middlewareToken, UsersController.addLikes)
+
+
 module.exports = router

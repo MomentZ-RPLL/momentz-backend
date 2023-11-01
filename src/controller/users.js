@@ -40,7 +40,7 @@ exports.loginUser = async (req, res) => {
 }
 
 function generateToken(user) {
-    const payload = { username: user.username }
+    const payload = { username: user.username, id_user: user.id_user}
     const token = jwt.sign(payload, secretKey, { expiresIn: '1h' })
     return token
 }
@@ -125,8 +125,7 @@ exports.addComment = async (req, res) => {
     try {
         const id_post = req.params.id_post;
         const comment = req.body.comment;
-        const getId = await UserModels.getIdUser(req.user.username);
-        const id_user = getId[0][0].id_user;
+        const id_user = req.user.id_user;
 
         const [data] = await UserModels.addComment(id_post, comment, id_user)
         if (data.length === 0) {
@@ -138,6 +137,53 @@ exports.addComment = async (req, res) => {
             res.status(200).json({
                 status: '200',
                 message: 'Sucess add Comment',
+            })
+        }
+    } catch (error) {
+        res.status(500).json({
+            status: '500',
+            message: `${error.message}`,
+        })
+    }
+}
+
+exports.getLikes = async (req, res) => {
+    try {
+        const [data] = await UserModels.getLikes(req.params.id_post)
+        if (data.length === 0) {
+            res.status(404).json({
+                status: '404',
+            })
+        } else {
+            res.status(200).json({
+                status: '200',
+                message: 'Sucess get Likes',
+                data: data
+            })
+        }
+    } catch (error) {
+        res.status(500).json({
+            status: '500',
+            message: `${error.message}`,
+        })
+    }
+}
+
+exports.addLikes = async (req, res) => {
+    try {
+        const id_post = req.params.id_post;
+        const id_user = req.user.id_user;
+
+        const [data] = await UserModels.addLikes(id_post, id_user)
+        if (data.length === 0) {
+            res.status(404).json({
+                status: '404',
+                message: 'Add like failed',
+            })
+        } else {
+            res.status(200).json({
+                status: '200',
+                message: 'Sucess add Like',
             })
         }
     } catch (error) {

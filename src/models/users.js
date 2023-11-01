@@ -127,15 +127,31 @@ exports.addComment = async (id_post, comment, id_user) => {
         throw new Error(error)
       }
 }
-
-exports.getIdUser = async (username) => {
-    try {
-      const query = 'SELECT id_user FROM USERS WHERE username = ?';
-      const data = await dbPool.query(query, [username]);
   
-      return data;
-    } catch (error) {
-      throw new Error(error);
-    }
-  };
+  exports.getLikes = async (id_post) => {
+    try {
+        const query = 'SELECT count(id_post) AS Likes FROM post_likes WHERE id_post= ?';
+        const data = await dbPool.query(query, [id_post]);
+
+        return data;
+      } catch (error) {
+        throw new Error(error)
+      }
+}
+
+// exports.addLikes = async (id_post, id_user) => {
+//     try {
+//       const checkQuery = 'SELECT * FROM post_likes WHERE id_post = ? AND id_user = ?';
+//       const checkResult = await dbPool.query(checkQuery, [id_post, id_user]);
+  
+//       if (checkResult.length === 0) {
+//         const insertQuery = 'INSERT INTO post_likes (id_post, id_user, created_at) VALUES (?,?,?)';
+//         return await dbPool.query(insertQuery, [id_post, id_user, new Date()]);
+//       } else {
+//         return "User has already liked this post.";
+//       }
+//     } catch (error) {
+//         throw new Error(error)
+//     }
+//   }
   
