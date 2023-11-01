@@ -8,6 +8,9 @@ const ErrorResponse = require('../utils/errorResponse')
 exports.postMedia = async (req, res) => {
     try {
         const [result] = await photoModels.postMedia(req)
+        if (result.affectedRows === 0) {
+            throw new ErrorResponse(400, 'post failed')
+        }
         
         res.status(200).json({
             status: '200',
