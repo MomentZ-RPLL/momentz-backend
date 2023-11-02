@@ -25,6 +25,9 @@ router.post('/:id_post/comments', middlewareToken, UsersController.addComment)
 router.get('/:id_post/likes', middlewareToken, UsersController.getLikes)
 //ADD LIKES
 router.post('/:id_post/likes', middlewareToken, UsersController.addLikes)
+//UNLIKES
+router.delete('/:id_post/likes', middlewareToken, UsersController.unLikes)
+
 
 
 module.exports = router

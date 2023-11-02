@@ -179,17 +179,40 @@ exports.getLikes = async (id_post) => {
     }
 }
 
-// exports.addLikes = async (id_post, id_user) => {
-//     try {
-//       const checkQuery = 'SELECT * FROM post_likes WHERE id_post = ? AND id_user = ?';
-//       const checkResult = await dbPool.query(checkQuery, [id_post, id_user]);
-//       if (checkResult.length === 0) {
-//         const insertQuery = 'INSERT INTO post_likes (id_post, id_user, created_at) VALUES (?,?,?)';
-//         return await dbPool.query(insertQuery, [id_post, id_user, new Date()]);
-//       } else {
-//         return "User has already liked this post.";
-//       }
-//     } catch (error) {
-//         throw new Error(error)
-//     }
-//   }
+exports.addLikes = async (id_post, id_user) => {
+    try {
+        const checkQuery = 'SELECT COUNT(*) AS likeCount FROM post_likes WHERE id_post = ? AND id_user = ?';
+        const checkResult = await dbPool.query(checkQuery, [id_post, id_user]);
+
+        const likeCount = checkResult[0][0].likeCount;
+
+        if (likeCount === 0) {
+          const insertQuery = 'INSERT INTO post_likes (id_post, id_user, created_at) VALUES (?,?,?)';
+          await dbPool.query(insertQuery, [id_post, id_user, new Date()]);
+          return true;
+        } else {
+          return false;
+        }        
+    } catch (error) {
+        throw new Error(error)
+    }
+  }
+
+  exports.unLikes = async (id_post, id_user) => {
+    try {
+        const checkQuery = 'SELECT COUNT(*) AS likeCount FROM post_likes WHERE id_post = ? AND id_user = ?';
+        const checkResult = await dbPool.query(checkQuery, [id_post, id_user]);
+        
+        const likeCount = checkResult[0][0].likeCount;
+
+        if (likeCount === 1) {
+          const insertQuery = 'DELETE FROM post_likes WHERE id_post = ? AND id_user = ?';
+          await dbPool.query(insertQuery, [id_post, id_user]);
+          return true;
+        } else {
+          return false;
+        }        
+    } catch (error) {
+        throw new Error(error)
+    }
+  }

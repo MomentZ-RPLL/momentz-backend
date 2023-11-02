@@ -212,14 +212,44 @@ exports.addLikes = async (req, res) => {
         const id_post = req.params.id_post
         const id_user = req.user.id_user
 
-        const [data] = await UserModels.addLikes(id_post, id_user)
-        if (data.length === 0) {
-            throw new ErrorResponse(404, 'Add Likes failed')
+        const data = await UserModels.addLikes(id_post, id_user)
+        if (!data) {
+            throw new ErrorResponse(404, 'User Already Likes this Post')
+        }else{
+            res.status(200).json({
+                status: '200',
+                message: 'Success add Like',
+            })
         }
-        res.status(200).json({
-            status: '200',
-            message: 'Sucess add Like',
-        })
+    } catch (error) {
+        if (error instanceof ErrorResponse) {
+            res.status(error.statusCode).json({
+                status: error.statusCode.toString(),
+                message: error.message,
+            })
+        } else {
+            res.status(500).json({
+                status: '500',
+                message: `${error.message}`,
+            })
+        }
+    }
+}
+
+exports.unLikes = async (req, res) => {
+    try {
+        const id_post = req.params.id_post
+        const id_user = req.user.id_user
+
+        const data = await UserModels.unLikes(id_post, id_user)
+        if (!data) {
+            throw new ErrorResponse(404, 'Failed, Like First')
+        }else{
+            res.status(200).json({
+                status: '200',
+                message: 'Success unlikes',
+            })
+        }
     } catch (error) {
         if (error instanceof ErrorResponse) {
             res.status(error.statusCode).json({
