@@ -24,17 +24,11 @@ exports.deleteMedia = async (data) => {
     const { id_post } = data.params
     const { id_user } = data.user
 
-    try {
-        // Check if the post with the given id exists and belongs to the authenticated user
-        const [postResult] = await getPostByPostId(id_post)
-        if (postResult.length === 0 || postResult[0].id_user !== id_user) {
-            throw new ErrorResponse(404, 'Post not found or unauthorized')
-        } else {
-            // Perform the delete operation for the post with the given id
-            const query = 'DELETE FROM posts WHERE id_post = ?'
-            return await dbPool.execute(query, [id_post])
-        }
-    } catch (error) {
-        throw error
+    const [postResult] = await getPostByPostId(id_post)
+    if (postResult.length === 0 || postResult[0].id_user !== id_user) {
+        throw new ErrorResponse(404, 'Post not found or unauthorized')
+    } else {
+        const query = 'DELETE FROM posts WHERE id_post = ?'
+        return await dbPool.execute(query, [id_post])
     }
 }

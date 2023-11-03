@@ -5,10 +5,12 @@ const storage = multer.diskStorage({
   destination: './images/profile_pictures/',
   filename: (req, file, cb) => {
     let username
-    if (req.user.username !== undefined) {
+    if (req.user && req.user.username) {
       username = req.user.username
-    } else if (req.body.username !== undefined) {
+    } else if (req.body.username) {
       username = req.body.username
+    } else {
+      cb(new Error('Username is required'), false)
     }
     const filename = `${file.fieldname}-${username}${path.extname(file.originalname)}`
     cb(null, filename)
