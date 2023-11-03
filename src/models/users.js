@@ -4,54 +4,51 @@ const { getUserByUsername, getUserByEmail } = require('../utils/userUtils')
 const ErrorResponse = require('../utils/errorResponse')
 
 exports.registerUser = async (data) => {
-    try {
-        if (data.body.username === undefined) {
-            throw new ErrorResponse(400, 'username is required')
-        }
-        if (data.body.password === undefined) {
-            throw new ErrorResponse(400, 'password is required')
-        }
-        if (data.body.name === undefined) {
-            throw new ErrorResponse(400, 'name is required')
-        }
-        if (data.body.email === undefined) {
-            throw new ErrorResponse(400, 'email is required')
-        }
-        if (data.body.bio === undefined) {
-            data.body.bio = null
-        }
-        if (data.file === undefined) {
-            data.file = { filename: 'default.png' }
-        }
-
-        const [username] = await getUserByUsername(data.body.username)
-        if (username.length > 0) {
-            throw new ErrorResponse(400, 'a user with that username already exist')
-        }
-        const [email] = await getUserByEmail(data.body.email)
-        if (email.length > 0) {
-            throw new ErrorResponse(400, 'a user with that email already exist')
-        }
-
-        data.body.created_at = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`
-
-        // encrypt password using sha256
-        data.body.password = sha256(data.body.password)
-
-        const query = `insert into users set ?`
-        const value = {
-            username: data.body.username,
-            password: data.body.password,
-            name: data.body.name,
-            email: data.body.email,
-            bio: data.body.bio,
-            profile_picture: data.file.filename,
-            created_at: data.body.created_at
-        }
-        return await dbPool.query(query, value)
-    } catch (error) {
-        throw new ErrorResponse(500, error.message)
+    if (data.body.username === undefined) {
+        throw new ErrorResponse(400, 'username is required')
     }
+    if (data.body.password === undefined) {
+        throw new ErrorResponse(400, 'password is required')
+    }
+    if (data.body.name === undefined) {
+        throw new ErrorResponse(400, 'name is required')
+    }
+    if (data.body.email === undefined) {
+        throw new ErrorResponse(400, 'email is required')
+    }
+    if (data.body.bio === undefined) {
+        data.body.bio = null
+    }
+    if (data.file === undefined) {
+        data.file = { filename: 'default.png' }
+    }
+    if (data.body.created_at === undefined) {
+        data.body.created_at = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`
+    }
+
+    const [username] = await getUserByUsername(data.body.username)
+    if (username.length > 0) {
+        throw new ErrorResponse(400, 'a user with that username already exist')
+    }
+    const [email] = await getUserByEmail(data.body.email)
+    if (email.length > 0) {
+        throw new ErrorResponse(400, 'a user with that email already exist')
+    }
+
+    // encrypt password using sha256
+    data.body.password = sha256(data.body.password)
+
+    const query = `insert into users set ?`
+    const value = {
+        username: data.body.username,
+        password: data.body.password,
+        name: data.body.name,
+        email: data.body.email,
+        bio: data.body.bio,
+        profile_picture: data.file.filename,
+        created_at: data.body.created_at
+    }
+    return await dbPool.query(query, value)
 }
 
 exports.loginUser = async (data) => {
@@ -122,61 +119,47 @@ exports.getUser = async (username) => {
     return [user]
 }
 
-
-
 exports.updateUser = async (data) => {
-    try {
-        if (data.body.bio === undefined) {
-            data.body.bio = null
-        }
-
-        if (data.file === undefined) {
-            data.file = { filename: 'default.png' }
-        }
-
-        const query = `update users set ? where username = ?`
-        const value = {
-            name: data.body.name,
-            email: data.body.email,
-            bio: data.body.bio,
-            profile_picture: data.file.filename
-        }
-        return await dbPool.query(query, [value, data.params.username])
-    } catch (error) {
-        throw new ErrorResponse(500, error.message)
+    if (data.body.name === undefined) {
+        throw new ErrorResponse(400, 'name is required')
     }
+    if (data.body.email === undefined) {
+        throw new ErrorResponse(400, 'email is required')
+    }
+    if (data.body.bio === undefined) {
+        data.body.bio = null
+    }
+
+    if (data.file === undefined) {
+        data.file = { filename: 'default.png' }
+    }
+
+    const query = `update users set ? where username = ?`
+    const value = {
+        name: data.body.name,
+        email: data.body.email,
+        bio: data.body.bio,
+        profile_picture: data.file.filename
+    }
+    return await dbPool.query(query, [value, data.params.username])
 }
 
 exports.getComment = async (id_post) => {
-    try {
-        const query = 'SELECT * FROM post_comments WHERE id_post= ?'
-        const data = await dbPool.query(query, [id_post])
+    const query = 'SELECT * FROM post_comments WHERE id_post= ?'
+    const data = await dbPool.query(query, [id_post])
 
-        return data
-    } catch (error) {
-        throw new ErrorResponse(500, error.message)
-    }
+    return data
 }
 
 exports.addComment = async (id_post, comment, id_user) => {
-    try {
-        const query = 'INSERT INTO post_comments (id_post, id_user, comment, created_at) VALUES (?,?,?,?)'
-        return await dbPool.query(query, [id_post, id_user, comment, new Date()])
-
-    } catch (error) {
-        throw new ErrorResponse(500, error.message)
-    }
+    const query = 'INSERT INTO post_comments (id_post, id_user, comment, created_at) VALUES (?,?,?,?)'
+    return await dbPool.query(query, [id_post, id_user, comment, new Date()])
 }
 
 exports.getLikes = async (id_post) => {
-    try {
-        const query = 'SELECT count(id_post) AS Likes FROM post_likes WHERE id_post= ?'
-        const data = await dbPool.query(query, [id_post])
-
-        return data
-    } catch (error) {
-        throw new ErrorResponse(500, error.message)
-    }
+    const query = 'SELECT count(id_post) AS Likes FROM post_likes WHERE id_post= ?'
+    const data = await dbPool.query(query, [id_post])
+    return data
 }
 
 exports.deleteComments = async (id_post, id_user, id_comment) => {
@@ -199,39 +182,31 @@ exports.deleteComments = async (id_post, id_user, id_comment) => {
   }
 
 exports.addLikes = async (id_post, id_user) => {
-    try {
-        const checkQuery = 'SELECT COUNT(*) AS likeCount FROM post_likes WHERE id_post = ? AND id_user = ?';
-        const checkResult = await dbPool.query(checkQuery, [id_post, id_user]);
+    const checkQuery = 'SELECT COUNT(*) AS likeCount FROM post_likes WHERE id_post = ? AND id_user = ?'
+    const checkResult = await dbPool.query(checkQuery, [id_post, id_user])
 
-        const likeCount = checkResult[0][0].likeCount;
+    const likeCount = checkResult[0][0].likeCount
 
-        if (likeCount === 0) {
-          const insertQuery = 'INSERT INTO post_likes (id_post, id_user, created_at) VALUES (?,?,?)';
-          await dbPool.query(insertQuery, [id_post, id_user, new Date()]);
-          return true;
-        } else {
-          return false;
-        }        
-    } catch (error) {
-        throw new Error(error)
+    if (likeCount === 0) {
+        const insertQuery = 'INSERT INTO post_likes (id_post, id_user, created_at) VALUES (?,?,?)'
+        await dbPool.query(insertQuery, [id_post, id_user, new Date()])
+        return true
+    } else {
+        throw new ErrorResponse(400, 'Post is already liked')
     }
-  }
+}
 
-  exports.unLikes = async (id_post, id_user) => {
-    try {
-        const checkQuery = 'SELECT COUNT(*) AS likeCount FROM post_likes WHERE id_post = ? AND id_user = ?';
-        const checkResult = await dbPool.query(checkQuery, [id_post, id_user]);
-        
-        const likeCount = checkResult[0][0].likeCount;
+exports.unLikes = async (id_post, id_user) => {
+    const checkQuery = 'SELECT COUNT(*) AS likeCount FROM post_likes WHERE id_post = ? AND id_user = ?'
+    const checkResult = await dbPool.query(checkQuery, [id_post, id_user])
 
-        if (likeCount === 1) {
-          const insertQuery = 'DELETE FROM post_likes WHERE id_post = ? AND id_user = ?';
-          await dbPool.query(insertQuery, [id_post, id_user]);
-          return true;
-        } else {
-          return false;
-        }        
-    } catch (error) {
-        throw new Error(error)
+    const likeCount = checkResult[0][0].likeCount
+
+    if (likeCount === 1) {
+        const insertQuery = 'DELETE FROM post_likes WHERE id_post = ? AND id_user = ?'
+        await dbPool.query(insertQuery, [id_post, id_user])
+        return true
+    } else {
+        throw new ErrorResponse(400, 'Post is already unliked')
     }
-  }
+}
