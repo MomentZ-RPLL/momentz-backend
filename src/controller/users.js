@@ -181,6 +181,36 @@ exports.addComment = async (req, res) => {
     }
 }
 
+exports.deleteComments = async (req, res) => {
+    try {
+        const id_post = req.params.id_post
+        const id_user = req.user.id_user
+        const id_comment = req.body.id_comments
+
+        const data = await UserModels.deleteComments(id_post, id_user, id_comment)
+        if (!data) {
+            throw new ErrorResponse(404, 'Gada commentny')
+        }else{
+            res.status(200).json({
+                status: '200',
+                message: 'Success delete Comments',
+            })
+        }
+    } catch (error) {
+        if (error instanceof ErrorResponse) {
+            res.status(error.statusCode).json({
+                status: error.statusCode.toString(),
+                message: error.message,
+            })
+        } else {
+            res.status(500).json({
+                status: '500',
+                message: `${error.message}`,
+            })
+        }
+    }
+}
+
 exports.getLikes = async (req, res) => {
     try {
         const [data] = await UserModels.getLikes(req.params.id_post)

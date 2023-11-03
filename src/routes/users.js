@@ -20,6 +20,8 @@ router.put('/:username', middlewareToken, uploadProfilePicture, UsersController.
 router.get('/:id_post/comments', middlewareToken, UsersController.getComment)
 //ADD COMMENT
 router.post('/:id_post/comments', middlewareToken, UsersController.addComment)
+//DELETE COMMENT
+router.delete('/:id_post/comments', middlewareToken, UsersController.deleteComments)
 
 //GET LIKES
 router.get('/:id_post/likes', middlewareToken, UsersController.getLikes)
