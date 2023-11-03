@@ -168,7 +168,6 @@ exports.deleteComments = async (id_post, id_user, id_comment) => {
         const checkResult = await dbPool.query(checkQuery, [id_comment]);
         
         const commentCount = checkResult[0][0].commentCount;
-        console.log(commentCount)
         if (commentCount === 1) {
           const insertQuery = 'DELETE FROM post_comments WHERE id_post = ? AND id_user = ? AND id_comment= ?';
           await dbPool.query(insertQuery, [id_post, id_user, id_comment]);
