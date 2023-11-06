@@ -123,6 +123,10 @@ exports.getUser = async (username) => {
 }
 
 exports.updateUser = async (data) => {
+    if (data.params.username != data.user.username) {
+        throw new ErrorResponse(401, 'you are not authorized to update this user')
+    }
+    
     if (data.body.name === undefined) {
         throw new ErrorResponse(400, 'name is required')
     }

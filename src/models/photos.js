@@ -29,7 +29,7 @@ exports.deleteMedia = async (data) => {
     const [postResult] = await getPostByPostId(id_post)
 
     if (postResult[0].id_user !== id_user) {
-        throw new ErrorResponse(404, 'unauthorized user')
+        throw new ErrorResponse(401, 'you are not authorized to delete this post')
     }
     if (postResult.length === 0) {
         throw new ErrorResponse(404, 'post not found')
