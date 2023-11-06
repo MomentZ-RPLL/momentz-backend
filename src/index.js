@@ -15,6 +15,8 @@ app.use(middlewareLogRequest.logRequest)
 app.use(express.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
+app.use("/images/profile_pictures", express.static("images/profile_pictures"))
+app.use("/images/posts", express.static("images/posts"))
 
 app.use('/user', usersRoutes)
 app.use('/photos', photosRoutes)

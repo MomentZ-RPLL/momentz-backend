@@ -2,6 +2,7 @@ const dbPool = require('../config/database')
 const { sha256 } = require('js-sha256')
 const { getUserByUsername, getUserByEmail } = require('../utils/userUtils')
 const ErrorResponse = require('../utils/errorResponse')
+const { getProfilePictureURL } = require('../utils/mediaUtils')
 
 exports.registerUser = async (data) => {
     if (data.body.username === undefined) {
@@ -89,7 +90,7 @@ exports.getUser = async (username) => {
             users.username = ?`
 
     const postsQuery =
-        `SELECT *
+        `SELECT id_post, id_user, CONCAT("${process.env.DB_HOST}:${process.env.PORT}${process.env.POST_PATH}",post_media) as post_media, caption, created_at
         FROM 
             posts
         WHERE 
@@ -102,6 +103,14 @@ exports.getUser = async (username) => {
         throw new ErrorResponse(404, 'User not found')
     }
 
+    const profile_picture = getProfilePictureURL(userData[0].profile_picture)
+
+    // if (postsData.length > 0) {
+    //     postsData.forEach(post => {
+    //         post.post_media = getProfilePictureURL(post.post_media)
+    //     })
+    // }
+
     const user = {
         id_user: userData[0].id_user,
         username: userData[0].username,
@@ -109,7 +118,7 @@ exports.getUser = async (username) => {
         name: userData[0].name,
         email: userData[0].email,
         bio: userData[0].bio,
-        profile_picture: userData[0].profile_picture,
+        profile_picture: profile_picture,
         created_at: userData[0].created_at,
         followers_count: userData[0].followers_count,
         following_count: userData[0].following_count,
@@ -164,21 +173,21 @@ exports.getLikes = async (id_post) => {
 
 exports.deleteComments = async (id_post, id_user, id_comment) => {
     try {
-        const checkQuery = 'SELECT COUNT(comment) as commentCount FROM post_comments WHERE id_comment= ?';
-        const checkResult = await dbPool.query(checkQuery, [id_comment]);
-        
-        const commentCount = checkResult[0][0].commentCount;
+        const checkQuery = 'SELECT COUNT(comment) as commentCount FROM post_comments WHERE id_comment= ?'
+        const checkResult = await dbPool.query(checkQuery, [id_comment])
+
+        const commentCount = checkResult[0][0].commentCount
         if (commentCount === 1) {
-          const insertQuery = 'DELETE FROM post_comments WHERE id_post = ? AND id_user = ? AND id_comment= ?';
-          await dbPool.query(insertQuery, [id_post, id_user, id_comment]);
-          return true;
+            const insertQuery = 'DELETE FROM post_comments WHERE id_post = ? AND id_user = ? AND id_comment= ?'
+            await dbPool.query(insertQuery, [id_post, id_user, id_comment])
+            return true
         } else {
-          return false;
-        }        
+            return false
+        }
     } catch (error) {
         throw new Error(error)
     }
-  }
+}
 
 exports.addLikes = async (id_post, id_user) => {
     const checkQuery = 'SELECT COUNT(*) AS likeCount FROM post_likes WHERE id_post = ? AND id_user = ?'
