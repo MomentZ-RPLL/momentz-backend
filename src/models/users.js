@@ -104,13 +104,7 @@ exports.getUser = async (username) => {
     }
 
     const profile_picture = getProfilePictureURL(userData[0].profile_picture)
-
-    // if (postsData.length > 0) {
-    //     postsData.forEach(post => {
-    //         post.post_media = getProfilePictureURL(post.post_media)
-    //     })
-    // }
-
+    
     const user = {
         id_user: userData[0].id_user,
         username: userData[0].username,
