@@ -1,11 +1,13 @@
 const multer = require('multer')
 const path = require('path')
+const { getDate } = require('../utils/mediaUtils')
 
 const storage = multer.diskStorage({
   destination: './images/posts/',
   filename: (req, file, cb) => {
     let username = req.user.username
-    const filename = `post_media_${username}_${req.body.created_at}${path.extname(file.originalname)}`
+    let created_at = getDate()
+    const filename = `post_media_${username}_${created_at}${path.extname(file.originalname)}`
     cb(null, filename)
   }
 })
