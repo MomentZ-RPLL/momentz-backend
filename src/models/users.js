@@ -2,7 +2,7 @@ const dbPool = require('../config/database')
 const { sha256 } = require('js-sha256')
 const { getUserByUsername, getUserByEmail } = require('../utils/userUtils')
 const ErrorResponse = require('../utils/errorResponse')
-const { getProfilePictureURL } = require('../utils/mediaUtils')
+const { getProfilePictureURL, getDate } = require('../utils/mediaUtils')
 
 exports.registerUser = async (data) => {
     if (data.body.username === undefined) {
@@ -104,7 +104,7 @@ exports.getUser = async (username) => {
     }
 
     const profile_picture = getProfilePictureURL(userData[0].profile_picture)
-    
+
     const user = {
         id_user: userData[0].id_user,
         username: userData[0].username,
@@ -126,7 +126,7 @@ exports.updateUser = async (data) => {
     if (data.params.username != data.user.username) {
         throw new ErrorResponse(401, 'you are not authorized to update this user')
     }
-    
+
     if (data.body.name === undefined) {
         throw new ErrorResponse(400, 'name is required')
     }
@@ -149,6 +149,31 @@ exports.updateUser = async (data) => {
         profile_picture: data.file.filename
     }
     return await dbPool.query(query, [value, data.params.username])
+}
+
+exports.followUser = async (id_user, id_following) => {
+    const date = getDate()
+
+    const query = `insert into user_follow set ?`
+    const value = {
+        id_user: id_user,
+        id_following: id_following,
+        followed_at: date
+    }
+    const data = await dbPool.query(query, value)
+
+    if (data.affectedRows === 0) {
+        throw new ErrorResponse(400, 'Failed to follow user')
+    } else {
+        return data
+    }
+}
+
+exports.removeFollow = async (id_user, id_following) => {
+    const query = `delete from user_follow where id_user = ? and id_following = ?`
+    const value = [id_user, id_following]
+
+    return await dbPool.query(query, value)
 }
 
 exports.getComment = async (id_post) => {

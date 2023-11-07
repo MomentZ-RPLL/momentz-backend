@@ -126,6 +126,68 @@ exports.updateUser = async (req, res) => {
     }
 }
 
+exports.followUser = async (req, res) => {
+    try {
+        const id_user = req.user.id_user
+        const id_following = req.params.id
+        if (id_user == id_following) {
+            throw new ErrorResponse(401, 'You cannot follow yourself')
+        }
+
+        const [result] = await UserModels.followUser(id_user, id_following)
+        if (result.affectedRows === 0) {
+            throw new ErrorResponse(404, 'User not found')
+        }
+        res.status(200).json({
+            status: '200',
+            message: 'Follow user success',
+        })
+    } catch (error) {
+        if (error instanceof ErrorResponse) {
+            res.status(error.statusCode).json({
+                status: error.statusCode.toString(),
+                message: error.message,
+            })
+        } else {
+            res.status(500).json({
+                status: '500',
+                message: `${error.message}`,
+            })
+        }
+    }
+}
+
+exports.removeFollow = async (req, res) => {
+    try {
+        const id_user = req.user.id_user
+        const id_following = req.params.id
+        if (id_user == id_following) {
+            throw new ErrorResponse(401, 'You cannot unfollow yourself')
+        }
+
+        const [result] = await UserModels.removeFollow(id_user, id_following)
+        if (result.affectedRows === 0) {
+            throw new ErrorResponse(404, 'User not found')
+        }
+        res.status(200).json({
+            status: '200',
+            message: 'Unfollow user success',
+        })
+    } catch (error) {
+        if (error instanceof ErrorResponse) {
+            res.status(error.statusCode).json({
+                status: error.statusCode.toString(),
+                message: error.message
+            })
+        } else {
+            res.status(500).json({
+                status: '500',
+                message: `${error.message}`
+            })
+        }
+    }
+}
+
 exports.getComment = async (req, res) => {
     try {
         const [data] = await UserModels.getComment(req.params.id_post)
@@ -190,7 +252,7 @@ exports.deleteComments = async (req, res) => {
         const data = await UserModels.deleteComments(id_post, id_user, id_comment)
         if (!data) {
             throw new ErrorResponse(404, 'Gada commentny')
-        }else{
+        } else {
             res.status(200).json({
                 status: '200',
                 message: 'Success delete Comments',
@@ -245,7 +307,7 @@ exports.addLikes = async (req, res) => {
         const data = await UserModels.addLikes(id_post, id_user)
         if (!data) {
             throw new ErrorResponse(404, 'User Already Likes this Post')
-        }else{
+        } else {
             res.status(200).json({
                 status: '200',
                 message: 'Success add Like',
@@ -274,7 +336,7 @@ exports.unLikes = async (req, res) => {
         const data = await UserModels.unLikes(id_post, id_user)
         if (!data) {
             throw new ErrorResponse(404, 'Failed, Like First')
-        }else{
+        } else {
             res.status(200).json({
                 status: '200',
                 message: 'Success unlikes',

@@ -16,6 +16,11 @@ router.post('/logout', UsersController.logoutUser)
 //UPDATE USER
 router.put('/:username', middlewareToken, uploadProfilePicture, UsersController.updateUser)
 
+//FOLLOW
+router.post('/follow/:id', middlewareToken, UsersController.followUser)
+//REMOVE FOLLOW
+router.delete('/follow/:id', middlewareToken, UsersController.removeFollow)
+
 //GET COMMENT
 router.get('/:id_post/comments', middlewareToken, UsersController.getComment)
 //ADD COMMENT
