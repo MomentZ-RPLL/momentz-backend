@@ -31,6 +31,37 @@ exports.postMedia = async (req, res) => {
     }
 }
 
+exports.getMedia = async (req, res) => {
+    try {
+        if (req.params.id_post === undefined) {
+            throw new ErrorResponse(400, 'id post is required')
+        }
+
+        const result = await photoModels.getMedia(req.params.id_post)
+        if (result.length === 0) {
+            throw new ErrorResponse(400, 'failed to get data')
+        }
+        res.status(200).json({
+            status: '200',
+            message: 'success',
+            data: result
+        })
+    } catch (error) {
+        console.trace(error)
+        if (error instanceof ErrorResponse) {
+            res.status(error.statusCode).json({
+                status: error.statusCode.toString(),
+                message: error.message,
+            })
+        } else {
+            res.status(500).json({
+                status: '500',
+                message: `${error.message}`,
+            })
+        }
+    }
+}
+
 exports.deleteMedia = async (req, res) => {
     try {
         const [result] = await photoModels.deleteMedia(req)
