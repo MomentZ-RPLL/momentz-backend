@@ -22,6 +22,34 @@ exports.postMedia = async (data) => {
     return await dbPool.query(query, value)
 }
 
+exports.getMedia = async (id_post) => {
+    const postQuery = `select 
+    id_post, id_user, CONCAT("${process.env.DB_HOST}:${process.env.PORT}${process.env.POST_PATH}",post_media) as post_media, caption, created_at
+    from posts where id_post = ?`
+    const [postResult] = await dbPool.execute(postQuery, [id_post])
+
+    if (postResult.length === 0) {
+        throw new ErrorResponse(404, 'post not found')
+    }
+
+    const commentQuery = 'SELECT * FROM post_comments WHERE id_post = ?'
+    const likeQuery = 'SELECT * FROM post_likes WHERE id_post = ?'
+
+    const [commentResult] = await dbPool.execute(commentQuery, [id_post])
+    const [likeResult] = await dbPool.execute(likeQuery, [id_post])
+
+    const post = {
+        id_post: postResult[0].id_post,
+        id_user: postResult[0].id_user,
+        caption: postResult[0].caption,
+        post_media: postResult[0].post_media,
+        created_at: postResult[0].created_at,
+        likes: likeResult,
+        comments: commentResult
+    }
+    return post
+}
+
 exports.deleteMedia = async (data) => {
     const { id_post } = data.params
     const { id_user } = data.user
@@ -34,7 +62,7 @@ exports.deleteMedia = async (data) => {
     if (postResult.length === 0) {
         throw new ErrorResponse(404, 'post not found')
     }
-    
+
     const query = 'DELETE FROM posts WHERE id_post = ?'
     return await dbPool.execute(query, [id_post])
 }
