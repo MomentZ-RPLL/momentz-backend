@@ -158,7 +158,8 @@ exports.followUser = async (id_user, id_following) => {
     const value = {
         id_user: id_user,
         id_following: id_following,
-        followed_at: date
+        followed_at: date,
+        is_notified: 1
     }
     const data = await dbPool.query(query, value)
 
@@ -184,8 +185,8 @@ exports.getComment = async (id_post) => {
 }
 
 exports.addComment = async (id_post, comment, id_user) => {
-    const query = 'INSERT INTO post_comments (id_post, id_user, comment, created_at) VALUES (?,?,?,?)'
-    return await dbPool.query(query, [id_post, id_user, comment, new Date()])
+    const query = 'INSERT INTO post_comments (id_post, id_user, comment, created_at, is_notified) VALUES (?,?,?,?,?)'
+    return await dbPool.query(query, [id_post, id_user, comment, new Date(), 1])
 }
 
 exports.getLikes = async (id_post) => {
@@ -219,8 +220,8 @@ exports.addLikes = async (id_post, id_user) => {
     const likeCount = checkResult[0][0].likeCount
 
     if (likeCount === 0) {
-        const insertQuery = 'INSERT INTO post_likes (id_post, id_user, created_at) VALUES (?,?,?)'
-        await dbPool.query(insertQuery, [id_post, id_user, new Date()])
+        const insertQuery = 'INSERT INTO post_likes (id_post, id_user, created_at, is_notified) VALUES (?,?,?,?)'
+        await dbPool.query(insertQuery, [id_post, id_user, new Date(), 1])
         return true
     } else {
         throw new ErrorResponse(400, 'Post is already liked')

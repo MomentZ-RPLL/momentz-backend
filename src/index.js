@@ -4,6 +4,7 @@ const middlewareLogRequest = require('./middleware/logs')
 
 const usersRoutes = require('./routes/users')
 const photosRoutes = require('./routes/photos')
+const notificationRoutes = require('./routes/notification')
 
 const PORT = process.env.PORT || 3001
 const express = require('express')
@@ -20,6 +21,7 @@ app.use("/images/posts", express.static("images/posts"))
 
 app.use('/user', usersRoutes)
 app.use('/photos', photosRoutes)
+app.use('/notification', notificationRoutes)
 
 app.listen(PORT, () => {
     console.log(`server running in port ${PORT}`)
