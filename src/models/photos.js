@@ -24,7 +24,7 @@ exports.postMedia = async (data) => {
 
 exports.getMedia = async (id_post) => {
     const postQuery = `select 
-    id_post, id_user, CONCAT("${process.env.DB_HOST}:${process.env.PORT}${process.env.POST_PATH}",post_media) as post_media, caption, created_at
+    id_post, id_user, CONCAT("${process.env.POST_PATH}",post_media) as post_media, caption, created_at
     from posts where id_post = ?`
     const [postResult] = await dbPool.execute(postQuery, [id_post])
 
