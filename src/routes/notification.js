@@ -9,7 +9,7 @@ router.get('/:id_post/comments',middlewareToken, NotifController.getNotifComment
 //GET NOTIF LIKES
 router.get('/:id_post/likes',middlewareToken, NotifController.getNotifLikes)
 //GET NOTIF FOLLOW
-router.get('/follow',middlewareToken, NotifController.getNotifLikes)
+router.get('/follow',middlewareToken, NotifController.getNotifFollow)
 
 
 module.exports = router
