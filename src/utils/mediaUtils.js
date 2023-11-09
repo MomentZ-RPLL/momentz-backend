@@ -13,7 +13,7 @@ exports.getPostByPostId = async (id) => {
 }
 
 exports.getProfilePictureURL = (filename) => {
-  return `${process.env.DB_HOST}:${process.env.PORT}${process.env.PROFILE_PATH}${filename}`
+  return `${process.env.PROFILE_PATH}${filename}`
 }
 
 exports.getDate = () => {
