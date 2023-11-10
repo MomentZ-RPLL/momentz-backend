@@ -22,6 +22,8 @@ router.post('/follow/:id', middlewareToken, UsersController.followUser)
 router.delete('/follow/:id', middlewareToken, UsersController.removeFollow)
 //GET FOLLOWER
 router.get('/:id/followers', middlewareToken, UsersController.getFollowers)
+//GET FOLLOWING
+router.get('/:id/following', middlewareToken, UsersController.getFollowing)
 
 //GET COMMENT
 router.get('/:id_post/comments', middlewareToken, UsersController.getComment)
