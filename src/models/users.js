@@ -2,7 +2,7 @@ const dbPool = require('../config/database')
 const { sha256 } = require('js-sha256')
 const { getUserByUsername, getUserByEmail } = require('../utils/userUtils')
 const ErrorResponse = require('../utils/errorResponse')
-const { getProfilePictureURL, getDate } = require('../utils/mediaUtils')
+const { getDate } = require('../utils/mediaUtils')
 
 exports.registerUser = async (data) => {
     if (data.body.username === undefined) {
@@ -81,7 +81,7 @@ exports.loginUser = async (data) => {
 exports.getUser = async (username) => {
     const userQuery =
         `SELECT 
-            *,
+            users.id_user, users.username, users.password, users.name, users.email, users.bio, CONCAT("${process.env.PROFILE_PATH}",users.profile_picture) as profile_picture, users.created_at,
             (SELECT COUNT(*) FROM user_follow WHERE id_following = users.id_user) AS followers_count,
             (SELECT COUNT(*) FROM user_follow WHERE id_user = users.id_user) AS following_count
         FROM 
@@ -103,8 +103,6 @@ exports.getUser = async (username) => {
         throw new ErrorResponse(404, 'User not found')
     }
 
-    const profile_picture = getProfilePictureURL(userData[0].profile_picture)
-
     const user = {
         id_user: userData[0].id_user,
         username: userData[0].username,
@@ -112,7 +110,7 @@ exports.getUser = async (username) => {
         name: userData[0].name,
         email: userData[0].email,
         bio: userData[0].bio,
-        profile_picture: profile_picture,
+        profile_picture: userData[0].profile_picture,
         created_at: userData[0].created_at,
         followers_count: userData[0].followers_count,
         following_count: userData[0].following_count,
@@ -152,8 +150,14 @@ exports.updateUser = async (data) => {
 }
 
 exports.followUser = async (id_user, id_following) => {
+    
+    const user = `select * from user_follow where id_user = ${id_user} and id_following = ${id_following}`
+    const [userCheck] = await dbPool.query(user)
+    if (userCheck.length > 0) {
+        throw new ErrorResponse(400, 'You already follow this user')
+    }
+    
     const date = getDate()
-
     const query = `insert into user_follow set ?`
     const value = {
         id_user: id_user,
@@ -203,70 +207,4 @@ exports.removeFollow = async (id_user, id_following) => {
     const value = [id_user, id_following]
 
     return await dbPool.query(query, value)
-}
-
-exports.getComment = async (id_post) => {
-    const query = 'SELECT * FROM post_comments WHERE id_post= ?'
-    const data = await dbPool.query(query, [id_post])
-
-    return data
-}
-
-exports.addComment = async (id_post, comment, id_user) => {
-    const query = 'INSERT INTO post_comments (id_post, id_user, comment, created_at, is_notified) VALUES (?,?,?,?,?)'
-    return await dbPool.query(query, [id_post, id_user, comment, new Date(), 1])
-}
-
-exports.getLikes = async (id_post) => {
-    const query = 'SELECT count(id_post) AS Likes FROM post_likes WHERE id_post= ?'
-    const data = await dbPool.query(query, [id_post])
-    return data
-}
-
-exports.deleteComments = async (id_post, id_user, id_comment) => {
-    try {
-        const checkQuery = 'SELECT COUNT(comment) as commentCount FROM post_comments WHERE id_comment= ?'
-        const checkResult = await dbPool.query(checkQuery, [id_comment])
-
-        const commentCount = checkResult[0][0].commentCount
-        if (commentCount === 1) {
-            const insertQuery = 'DELETE FROM post_comments WHERE id_post = ? AND id_user = ? AND id_comment= ?'
-            await dbPool.query(insertQuery, [id_post, id_user, id_comment])
-            return true
-        } else {
-            return false
-        }
-    } catch (error) {
-        throw new Error(error)
-    }
-}
-
-exports.addLikes = async (id_post, id_user) => {
-    const checkQuery = 'SELECT COUNT(*) AS likeCount FROM post_likes WHERE id_post = ? AND id_user = ?'
-    const checkResult = await dbPool.query(checkQuery, [id_post, id_user])
-
-    const likeCount = checkResult[0][0].likeCount
-
-    if (likeCount === 0) {
-        const insertQuery = 'INSERT INTO post_likes (id_post, id_user, created_at, is_notified) VALUES (?,?,?,?)'
-        await dbPool.query(insertQuery, [id_post, id_user, new Date(), 1])
-        return true
-    } else {
-        throw new ErrorResponse(400, 'Post is already liked')
-    }
-}
-
-exports.unLikes = async (id_post, id_user) => {
-    const checkQuery = 'SELECT COUNT(*) AS likeCount FROM post_likes WHERE id_post = ? AND id_user = ?'
-    const checkResult = await dbPool.query(checkQuery, [id_post, id_user])
-
-    const likeCount = checkResult[0][0].likeCount
-
-    if (likeCount === 1) {
-        const insertQuery = 'DELETE FROM post_likes WHERE id_post = ? AND id_user = ?'
-        await dbPool.query(insertQuery, [id_post, id_user])
-        return true
-    } else {
-        throw new ErrorResponse(400, 'Post is already unliked')
-    }
 }

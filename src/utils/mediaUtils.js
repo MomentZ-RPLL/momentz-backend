@@ -12,10 +12,6 @@ exports.getPostByPostId = async (id) => {
   return dbPool.execute(query, [id])
 }
 
-exports.getProfilePictureURL = (filename) => {
-  return `${process.env.PROFILE_PATH}${filename}`
-}
-
 exports.getDate = () => {
-  return new Date().toISOString().slice(0, 19).replace(/-/g, "").replace(/:/g, "").replace("T", "")
+  return new Date().toISOString().slice(0, 19).replaceAll(':', '-').replace('T', ' ')
 }
