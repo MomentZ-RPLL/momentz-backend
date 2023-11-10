@@ -157,6 +157,22 @@ exports.followUser = async (req, res) => {
     }
 }
 
+exports.getFollowers = async (req, res) => {
+    try {
+        const [result] = await UserModels.getFollowers(req.params.id)
+        res.status(200).json({
+            status: '200',
+            message: 'Get followers success',
+            data: result
+        })
+    } catch (error) {
+        res.status(500).json({
+            status: '500',
+            message: `${error.message}`,
+        })
+    }
+}
+
 exports.removeFollow = async (req, res) => {
     try {
         const id_user = req.user.id_user

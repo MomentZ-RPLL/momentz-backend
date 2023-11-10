@@ -170,6 +170,20 @@ exports.followUser = async (id_user, id_following) => {
     }
 }
 
+exports.getFollowers = async (id_user) => {
+    const query = `
+    SELECT
+        users.id_user, users.username, CONCAT("${process.env.PROFILE_PATH}",users.profile_picture) as profile_picture, user_follow.followed_at as following_since
+    from
+        user_follow
+    join users on
+        user_follow.id_user = users.id_user
+    where user_follow.id_following = ?`
+    const data = await dbPool.query(query, [id_user])
+
+    return data
+}
+
 exports.removeFollow = async (id_user, id_following) => {
     const query = `delete from user_follow where id_user = ? and id_following = ?`
     const value = [id_user, id_following]

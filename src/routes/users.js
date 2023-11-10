@@ -20,6 +20,8 @@ router.put('/:username', middlewareToken, uploadProfilePicture, UsersController.
 router.post('/follow/:id', middlewareToken, UsersController.followUser)
 //REMOVE FOLLOW
 router.delete('/follow/:id', middlewareToken, UsersController.removeFollow)
+//GET FOLLOWER
+router.get('/:id/followers', middlewareToken, UsersController.getFollowers)
 
 //GET COMMENT
 router.get('/:id_post/comments', middlewareToken, UsersController.getComment)
