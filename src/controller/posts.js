@@ -150,7 +150,10 @@ exports.deleteComments = async (req, res) => {
 
         const data = await postModels.deleteComments(id_post, id_user, id_comment)
         if (!data) {
-            throw new ErrorResponse(404, 'Gada commentny')
+            res.status(200).json({
+                status: '200',
+                message: 'No Comment Found',
+            })
         } else {
             res.status(200).json({
                 status: '200',
@@ -205,7 +208,11 @@ exports.addLikes = async (req, res) => {
 
         const data = await postModels.addLikes(id_post, id_user)
         if (!data) {
-            throw new ErrorResponse(404, 'User Already Likes this Post')
+            console.log('asd')
+            res.status(200).json({
+                status: '200',
+                message: 'Post is already liked',
+            })
         } else {
             res.status(200).json({
                 status: '200',

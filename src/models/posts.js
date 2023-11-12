@@ -118,7 +118,7 @@ exports.addLikes = async (id_post, id_user) => {
         await dbPool.query(insertQuery, [id_post, id_user, getDate(), 1])
         return true
     } else {
-        throw new ErrorResponse(400, 'Post is already liked')
+        return false
     }
 }
 
