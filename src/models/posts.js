@@ -32,8 +32,8 @@ exports.getMedia = async (id_post) => {
         throw new ErrorResponse(404, 'post not found')
     }
 
-    const commentQuery = 'SELECT * FROM post_comments WHERE id_post = ?'
-    const likeQuery = 'SELECT * FROM post_likes WHERE id_post = ?'
+    const likeQuery = `SELECT  l.id_like, l.id_post, l.id_user, u.username, CONCAT("${process.env.PROFILE_PATH}",u.profile_picture) as profile_picture, l.created_at, l.is_notified FROM post_likes l join users u on l.id_user = u.id_user WHERE id_post = ?`
+    const commentQuery = `SELECT c.id_comment, c.id_post, c.id_user, u.username, CONCAT("${process.env.PROFILE_PATH}",u.profile_picture) as profile_picture, c.comment, c.created_at, c.is_notified FROM post_comments c join users u on c.id_user = u.id_user WHERE id_post = ?`
 
     const [commentResult] = await dbPool.execute(commentQuery, [id_post])
     const [likeResult] = await dbPool.execute(likeQuery, [id_post])

@@ -34,7 +34,7 @@ exports.loginUser = async (req, res) => {
         const user = await UserModels.loginUser(data)
         if (user) {
             const token = generateToken(user)
-            res.cookie('token', token, { maxAge: 2630000, httpOnly: true })
+            res.cookie('token', token, { httpOnly: true })
             res.status(200).json({
                 status: '200',
                 message: 'Login user success',
