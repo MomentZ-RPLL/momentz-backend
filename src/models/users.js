@@ -78,85 +78,39 @@ exports.loginUser = async (data) => {
     return user
 }
 
-exports.getUser = async (username) => {
-    const userQuery =
-        `SELECT 
-            users.id_user, users.username, users.password, users.name, users.email, users.bio, CONCAT("${process.env.PROFILE_PATH}",users.profile_picture) as profile_picture, users.created_at,
-            (SELECT COUNT(*) FROM user_follow WHERE id_following = users.id_user) AS followers_count,
-            (SELECT COUNT(*) FROM user_follow WHERE id_user = users.id_user) AS following_count
-        FROM 
-            users
-        WHERE 
-            users.username = ?`
+exports.updateUser = async (req) => {
+    if (req.params.username !== req.user.username) {
+        throw new ErrorResponse(401, 'You are not authorized to update this user')
+    }
 
-    const postsQuery =
-        `SELECT id_post, id_user, CONCAT("${process.env.POST_PATH}",post_media) as post_media, caption, created_at
-        FROM 
-            posts
-        WHERE 
-            id_user = (SELECT id_user FROM users WHERE username = ?)`
-
-    const [userData] = await dbPool.execute(userQuery, [username])
-    const [postsData] = await dbPool.execute(postsQuery, [username])
+    const userQuery = 'SELECT * FROM users WHERE username = ?'
+    const [userData] = await dbPool.execute(userQuery, [req.params.username])
 
     if (userData.length === 0) {
         throw new ErrorResponse(404, 'User not found')
     }
 
-    const user = {
-        id_user: userData[0].id_user,
-        username: userData[0].username,
-        password: userData[0].password,
-        name: userData[0].name,
-        email: userData[0].email,
-        bio: userData[0].bio,
-        profile_picture: userData[0].profile_picture,
-        created_at: userData[0].created_at,
-        followers_count: userData[0].followers_count,
-        following_count: userData[0].following_count,
-        posts: postsData
-    }
+    const user = userData[0]
 
-    return [user]
-}
+    const name = req.body.name || user.name
+    const email = req.body.email || user.email
+    const bio = req.body.bio || user.bio
+    const profile_picture = req.query != null && req.query.del_pict === 'true' ? 'default.png' : (req.file !== undefined ? req.file.filename : user.profile_picture)
 
-exports.updateUser = async (data) => {
-    if (data.params.username != data.user.username) {
-        throw new ErrorResponse(401, 'you are not authorized to update this user')
-    }
+    const query = 'UPDATE users SET name = ?, email = ?, bio = ?, profile_picture = ? WHERE username = ?'
+    const values = [name, email, bio, profile_picture, req.params.username]
 
-    if (data.body.name === undefined) {
-        throw new ErrorResponse(400, 'name is required')
-    }
-    if (data.body.email === undefined) {
-        throw new ErrorResponse(400, 'email is required')
-    }
-    if (data.body.bio === undefined) {
-        data.body.bio = null
-    }
-
-    if (data.file === undefined) {
-        data.file = { filename: 'default.png' }
-    }
-
-    const query = `update users set ? where username = ?`
-    const value = {
-        name: data.body.name,
-        email: data.body.email,
-        bio: data.body.bio,
-        profile_picture: data.file.filename
-    }
-    return await dbPool.query(query, [value, data.params.username])
+    return await dbPool.query(query, values)
 }
 
 exports.followUser = async (id_user, id_following) => {
-    
+
     const user = `select * from user_follow where id_user = ${id_user} and id_following = ${id_following}`
     const [userCheck] = await dbPool.query(user)
     if (userCheck.length > 0) {
         throw new ErrorResponse(400, 'You already follow this user')
     }
-    
+
     const date = getDate()
     const query = `insert into user_follow set ?`
     const value = {
