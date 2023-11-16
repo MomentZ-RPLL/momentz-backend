@@ -78,6 +78,48 @@ exports.loginUser = async (data) => {
     return user
 }
 
+exports.getUser = async (username) => {
+    const userQuery =
+        `SELECT 
+            users.id_user, users.username, users.password, users.name, users.email, users.bio, CONCAT("${process.env.PROFILE_PATH}",users.profile_picture) as profile_picture, users.created_at,
+            (SELECT COUNT(*) FROM user_follow WHERE id_following = users.id_user) AS followers_count,
+            (SELECT COUNT(*) FROM user_follow WHERE id_user = users.id_user) AS following_count
+        FROM 
+            users
+        WHERE 
+            users.username = ?`
+
+    const postsQuery =
+        `SELECT id_post, id_user, CONCAT("${process.env.POST_PATH}",post_media) as post_media, caption, created_at
+        FROM 
+            posts
+        WHERE 
+            id_user = (SELECT id_user FROM users WHERE username = ?)`
+
+    const [userData] = await dbPool.execute(userQuery, [username])
+    const [postsData] = await dbPool.execute(postsQuery, [username])
+
+    if (userData.length === 0) {
+        throw new ErrorResponse(404, 'User not found')
+    }
+
+    const user = {
+        id_user: userData[0].id_user,
+        username: userData[0].username,
+        password: userData[0].password,
+        name: userData[0].name,
+        email: userData[0].email,
+        bio: userData[0].bio,
+        profile_picture: userData[0].profile_picture,
+        created_at: userData[0].created_at,
+        followers_count: userData[0].followers_count,
+        following_count: userData[0].following_count,
+        posts: postsData
+    }
+
+    return [user]
+}
+
 exports.updateUser = async (req) => {
     if (req.params.username !== req.user.username) {
         throw new ErrorResponse(401, 'You are not authorized to update this user')
@@ -104,13 +146,13 @@ exports.updateUser = async (req) => {
 }
 
 exports.followUser = async (id_user, id_following) => {
-
+    
     const user = `select * from user_follow where id_user = ${id_user} and id_following = ${id_following}`
     const [userCheck] = await dbPool.query(user)
     if (userCheck.length > 0) {
         throw new ErrorResponse(400, 'You already follow this user')
     }
-
+    
     const date = getDate()
     const query = `insert into user_follow set ?`
     const value = {
