@@ -1,11 +1,11 @@
-const dbPool = require("../config/database");
-const ErrorResponse = require("../utils/errorResponse");
+const dbPool = require("../config/database")
 
 exports.getTimeline = async (id_user) => {
-    const query =
+  const query =
     'SELECT ' +
     'u.username, ' +
-    'p.post_media, ' +
+    `CONCAT("${process.env.PROFILE_PATH}", u.profile_picture) as profile_picture, ` +
+    `CONCAT("${process.env.POST_PATH}", p.post_media) as post_media, ` +
     'p.caption, ' +
     'p.created_at, ' +
     'pc.comment, ' +
@@ -26,8 +26,8 @@ exports.getTimeline = async (id_user) => {
     'pc.comment, ' +
     'pc.created_at, ' +
     'pl.id_post ' +
-    'ORDER BY p.created_at ASC;';
-  
-  const data = await dbPool.query(query, [id_user]);
-  return data;
-};
+    'ORDER BY p.created_at ASC;'
+
+  const data = await dbPool.query(query, [id_user])
+  return data
+}
