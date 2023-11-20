@@ -34,7 +34,7 @@ exports.getNotifComment = async (req, res) => {
 
 exports.getNotifLikes = async (req, res) => {
     try {
-        const [data] = await NotifModels.getNotifLikes(req.params.id_post, req.user.id_user)
+        const [data] = await NotifModels.getNotifLikes(req.user.id_user)
         if (data.length === 0) {
             throw new ErrorResponse(404, 'Notif not found')
         }
