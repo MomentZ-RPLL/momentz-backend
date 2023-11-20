@@ -8,7 +8,7 @@ const ErrorResponse = require('../utils/errorResponse')
 
 exports.getNotifComment = async (req, res) => {
     try {
-        const [data] = await NotifModels.getNotifComment(req.params.id_post, req.user.id_user)
+        const [data] = await NotifModels.getNotifComment(req.user.id_user)
         if (data.length === 0) {
             throw new ErrorResponse(404, 'Notif not found')
         }

@@ -1,17 +1,27 @@
 const dbPool = require("../config/database");
 const ErrorResponse = require("../utils/errorResponse");
 
-exports.getNotifComment = async (id_post, id_user) => {
-  const query =
-    "SELECT u.username, p.comment, po.id_post, p.created_at FROM post_comments p JOIN users u ON u.id_user = p.id_user JOIN posts po ON po.id_post = p.id_post  WHERE p.id_post = ? AND p.is_notified = ? and po.id_user = ?";
-  const data = await dbPool.query(query, [id_post, 1, id_user]);
+exports.getNotifComment = async (id_user) => {
+
+  const query = `
+  SELECT pc.id_comment, p.id_post, u.username, CONCAT("${process.env.POST_PATH}", p.post_media) as post_media, pc.created_at
+  FROM posts p
+    JOIN post_comments pc ON p.id_post = pc.id_Post
+    JOIN users u ON pc.id_user = u.id_user
+  WHERE p.id_user = ? AND pc.is_notified = 1
+  `
+  const data = await dbPool.query(query, [id_user])
+
   if (data[0].length !== 0) {
-    const updateQuery =
-      "UPDATE post_comments SET is_notified = ? WHERE id_post = ?";
-    await dbPool.query(updateQuery, [0, id_post]);
+    const updateQuery = `
+      UPDATE post_comments 
+      SET is_notified = 0 
+      WHERE id_post IN (SELECT id_post FROM posts WHERE id_user = ?) AND is_notified = 1
+    `
+    await dbPool.query(updateQuery, [id_user])
   }
-  return data;
-};
+  return data
+}
 
 exports.getNotifLikes = async (id_post, id_user) => {
   const query =
