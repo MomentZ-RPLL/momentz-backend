@@ -4,7 +4,7 @@ const ErrorResponse = require("../utils/errorResponse");
 exports.getNotifComment = async (id_user) => {
 
   const query = `
-  SELECT pc.id_comment, p.id_post, u.username, CONCAT("${process.env.PROFILE_PATH}",u.profile_picture) as profile_picture, CONCAT("${process.env.POST_PATH}", p.post_media) as post_media, pc.created_at
+  SELECT pc.id_comment, u.username, CONCAT("${process.env.PROFILE_PATH}",u.profile_picture) as profile_picture, pc.comment, p.id_post, CONCAT("${process.env.POST_PATH}", p.post_media) as post_media, pc.created_at
   FROM posts p
     JOIN post_comments pc ON p.id_post = pc.id_Post
     JOIN users u ON pc.id_user = u.id_user
@@ -12,14 +12,14 @@ exports.getNotifComment = async (id_user) => {
   `
   const data = await dbPool.query(query, [id_user])
 
-  if (data[0].length !== 0) {
-    const updateQuery = `
-      UPDATE post_comments 
-      SET is_notified = 0 
-      WHERE id_post IN (SELECT id_post FROM posts WHERE id_user = ?) AND is_notified = 1
-    `
-    await dbPool.query(updateQuery, [id_user])
-  }
+  // if (data[0].length !== 0) {
+  //   const updateQuery = `
+  //     UPDATE post_comments 
+  //     SET is_notified = 0 
+  //     WHERE id_post IN (SELECT id_post FROM posts WHERE id_user = ?) AND is_notified = 1
+  //   `
+  //   await dbPool.query(updateQuery, [id_user])
+  // }
   return data
 }
 
