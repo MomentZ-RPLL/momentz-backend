@@ -4,7 +4,7 @@ const ErrorResponse = require("../utils/errorResponse");
 exports.getNotifComment = async (id_user) => {
 
   const query = `
-  SELECT pc.id_comment, p.id_post, u.username, CONCAT("${process.env.POST_PATH}", p.post_media) as post_media, pc.created_at
+  SELECT pc.id_comment, p.id_post, u.username, CONCAT("${process.env.PROFILE_PATH}",u.profile_picture) as profile_picture, CONCAT("${process.env.POST_PATH}", p.post_media) as post_media, pc.created_at
   FROM posts p
     JOIN post_comments pc ON p.id_post = pc.id_Post
     JOIN users u ON pc.id_user = u.id_user
@@ -25,7 +25,7 @@ exports.getNotifComment = async (id_user) => {
 
 exports.getNotifLikes = async (id_user) => {
   const query = `
-  SELECT pl.id_like, p.id_post, u.username, CONCAT("${process.env.POST_PATH}", p.post_media) as post_media, pl.created_at
+  SELECT pl.id_like, p.id_post, u.username, CONCAT("${process.env.PROFILE_PATH}",u.profile_picture) as profile_picture, CONCAT("${process.env.POST_PATH}", p.post_media) as post_media, pl.created_at
   FROM posts p
     JOIN post_likes pl ON p.id_post = pl.id_post
     JOIN users u ON pl.id_user = u.id_user
