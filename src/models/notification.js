@@ -46,13 +46,13 @@ exports.getNotifLikes = async (id_user) => {
 
 exports.getNotifFollow = async (id_user) => {
   const query =
-    `SELECT u.username, CONCAT("${process.env.PROFILE_PATH}", u.profile_picture) as profile_picture, uf.followed_at FROM user_follow uf JOIN users u ON u.id_user = uf.id_user WHERE uf.id_following = ? AND is_notified= ?`
+    `SELECT u.username, uf.id_user, CONCAT("${process.env.PROFILE_PATH}", u.profile_picture) as profile_picture, uf.followed_at FROM user_follow uf JOIN users u ON u.id_user = uf.id_user WHERE uf.id_following = ? AND is_notified= ?`
   const data = await dbPool.query(query, [id_user, 1])
 
-  if (data[0].length !== 0) {
-    const updateQuery =
-      "UPDATE user_follow SET is_notified = ? WHERE id_following = ?"
-    await dbPool.query(updateQuery, [0, id_user])
-  }
+  // if (data[0].length !== 0) {
+  //   const updateQuery =
+  //     "UPDATE user_follow SET is_notified = ? WHERE id_following = ?"
+  //   await dbPool.query(updateQuery, [0, id_user])
+  // }
   return data
 }
