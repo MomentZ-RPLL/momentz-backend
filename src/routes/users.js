@@ -10,11 +10,11 @@ router.post('/register', uploadProfilePicture, UsersController.registerUser)
 //LOGIN
 router.post('/login', UsersController.loginUser)
 //GET USER
-router.get('/:username', middlewareToken, UsersController.getUser)
+router.get('/profile/:username', middlewareToken, UsersController.getUser)
 //LOGOUT
 router.post('/logout', UsersController.logoutUser)
 //UPDATE USER
-router.put('/:username', middlewareToken, uploadProfilePicture, UsersController.updateUser)
+router.put('/profile/:username', middlewareToken, uploadProfilePicture, UsersController.updateUser)
 
 //FOLLOW
 router.post('/follow/:id', middlewareToken, UsersController.followUser)
@@ -24,6 +24,9 @@ router.delete('/follow/:id', middlewareToken, UsersController.removeFollow)
 router.get('/:id/followers', middlewareToken, UsersController.getFollowers)
 //GET FOLLOWING
 router.get('/:id/following', middlewareToken, UsersController.getFollowing)
+
+//SEARCH USER
+router.get('/search', middlewareToken, UsersController.searchUser)
 
 
 module.exports = router

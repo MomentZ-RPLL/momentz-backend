@@ -219,3 +219,30 @@ exports.removeFollow = async (req, res) => {
         }
     }
 }
+
+exports.searchUser = async (req, res) => {
+    try {
+        const [result] = await UserModels.searchUser(req.query.username)
+        if (result.length === 0) {
+            throw new ErrorResponse(404, 'User not found')
+        } else {
+            res.status(200).json({
+                status: '200',
+                message: 'Search user success',
+                data: result
+            })
+        }
+    } catch (error) {
+        if (error instanceof ErrorResponse) {
+            res.status(error.statusCode).json({
+                status: error.statusCode.toString(),
+                message: error.message
+            })
+        } else {
+            res.status(500).json({
+                status: '500',
+                message: `${error.message}`
+            })
+        }
+    }
+}
