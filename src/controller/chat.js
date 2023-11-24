@@ -34,10 +34,15 @@ exports.getDetailChat = async (req, res) => {
   try {
     const id_sender = req.user.id_user
     const id_receiver = req.params.id_user
+    if (id_sender == id_receiver) {
+      throw new ErrorResponse(400, 'You can\'t chat with yourself')
+    }
+    
     const [data] = await chatModels.getDetailChat(id_sender, id_receiver)
     if (data.length === 0) {
       throw new ErrorResponse(404, 'Chat not found')
     }
+    
     res.status(200).json({
       status: '200',
       message: 'Sucess get Chat',
