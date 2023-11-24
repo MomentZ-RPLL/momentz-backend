@@ -9,6 +9,12 @@ exports.postMedia = async (data) => {
     if (data.body.caption === undefined) {
         data.body.caption = ""
     }
+    if (data.body.lat === undefined) {
+        data.body.lat = null
+    }
+    if (data.body.lon === undefined) {
+        data.body.lon = null
+    }
 
     const created_at = getDate()
 
@@ -17,14 +23,16 @@ exports.postMedia = async (data) => {
         id_user: data.user.id_user,
         caption: data.body.caption,
         post_media: data.file.filename,
-        created_at: created_at
+        created_at: created_at,
+        lat: data.body.lat,
+        lon: data.body.lon
     }
     return await dbPool.query(query, value)
 }
 
 exports.getMedia = async (id_post) => {
     const postQuery = `select 
-    id_post, id_user, CONCAT("${process.env.POST_PATH}",post_media) as post_media, caption, created_at
+    id_post, id_user, CONCAT("${process.env.POST_PATH}",post_media) as post_media, caption, created_at, lat, lon
     from posts where id_post = ?`
     const [postResult] = await dbPool.execute(postQuery, [id_post])
 
@@ -44,6 +52,8 @@ exports.getMedia = async (id_post) => {
         caption: postResult[0].caption,
         post_media: postResult[0].post_media,
         created_at: postResult[0].created_at,
+        lat: postResult[0].lat,
+        lon: postResult[0].lon,
         likes: likeResult,
         comments: commentResult
     }

@@ -90,7 +90,7 @@ exports.getUser = async (username) => {
             users.username = ?`
 
     const postsQuery =
-        `SELECT id_post, id_user, CONCAT("${process.env.POST_PATH}",post_media) as post_media, caption, created_at
+        `SELECT id_post, id_user, CONCAT("${process.env.POST_PATH}",post_media) as post_media, caption, created_at, lat, lon
         FROM 
             posts
         WHERE 
