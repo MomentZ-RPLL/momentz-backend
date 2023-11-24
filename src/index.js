@@ -6,6 +6,7 @@ const usersRoutes = require('./routes/users')
 const postsRoutes = require('./routes/posts')
 const notificationRoutes = require('./routes/notification')
 const timelineRoutes = require('./routes/timeline')
+const chatRoutes = require('./routes/chat')
 
 const PORT = process.env.PORT || 3001
 const express = require('express')
@@ -24,6 +25,7 @@ app.use('/users', usersRoutes)
 app.use('/posts', postsRoutes)
 app.use('/notification', notificationRoutes)
 app.use('/timeline', timelineRoutes)
+app.use('/chats', chatRoutes)
 
 app.listen(PORT, () => {
     console.log(`server running in port ${PORT}`)
