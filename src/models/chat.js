@@ -8,7 +8,11 @@ exports.getAllChat = async (id_user) => {
     CASE 
       WHEN u1.id_user = ? THEN u2.username
       ELSE u1.username
-    END AS other_username, 
+    END AS other_username,
+    CASE 
+      WHEN u1.id_user = ? THEN CONCAT("${process.env.PROFILE_PATH}", u2.profile_picture)
+      ELSE CONCAT("${process.env.PROFILE_PATH}", u1.profile_picture)
+    END AS other_profile_picture, 
     c.id_sender, c.id_receiver, c.message, c.sent_at, c.is_read
     FROM chat c
       JOIN users u1 ON c.id_sender = u1.id_user
@@ -22,7 +26,7 @@ exports.getAllChat = async (id_user) => {
     )
     ORDER BY c.sent_at DESC
   `
-  return await dbPool.query(query, [id_user, id_user, id_user])
+  return await dbPool.query(query, [id_user, id_user, id_user, id_user])
 }
 
 exports.getDetailChat = async (id_sender, id_receiver) => {
