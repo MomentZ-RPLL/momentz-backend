@@ -205,13 +205,13 @@ exports.removeFollow = async (id_user, id_following) => {
     return await dbPool.query(query, value)
 }
 
-exports.searchUser = async (username) => {
+exports.searchUser = async (username, id_user) => {
     const query = `
     SELECT
         id_user, username, CONCAT("${process.env.PROFILE_PATH}",profile_picture) as profile_picture
     from
         users
-    where username like ?`
+    where username like ? AND id_user != ?`
     const value = `%${username}%`
-    return await dbPool.query(query, [value])
+    return await dbPool.query(query, [value, id_user])
 }

@@ -222,7 +222,7 @@ exports.removeFollow = async (req, res) => {
 
 exports.searchUser = async (req, res) => {
     try {
-        const [result] = await UserModels.searchUser(req.query.username)
+        const [result] = await UserModels.searchUser(req.query.username, req.user.id_user)
         if (result.length === 0) {
             throw new ErrorResponse(404, 'User not found')
         } else {
