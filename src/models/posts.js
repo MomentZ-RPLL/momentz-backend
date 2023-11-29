@@ -95,6 +95,12 @@ exports.getComment = async (id_post) => {
 }
 
 exports.addComment = async (id_post, comment, id_user) => {
+    const [postResult] = await getPostByPostId(id_post)
+
+    if (postResult.length === 0) {
+        throw new ErrorResponse(404, 'post not found')
+    }
+    
     const query = 'INSERT INTO post_comments (id_post, id_user, comment, created_at, is_notified) VALUES (?,?,?,?,?)'
     return await dbPool.query(query, [id_post, id_user, comment, getDate(), 1])
 }
@@ -124,6 +130,12 @@ exports.deleteComments = async (id_post, id_user, id_comment) => {
 }
 
 exports.addLikes = async (id_post, id_user) => {
+    const [postResult] = await getPostByPostId(id_post)
+
+    if (postResult.length === 0) {
+        throw new ErrorResponse(404, 'post not found')
+    }
+    
     const checkQuery = 'SELECT COUNT(*) AS likeCount FROM post_likes WHERE id_post = ? AND id_user = ?'
     const checkResult = await dbPool.query(checkQuery, [id_post, id_user])
 
@@ -139,6 +151,12 @@ exports.addLikes = async (id_post, id_user) => {
 }
 
 exports.unLikes = async (id_post, id_user) => {
+    const [postResult] = await getPostByPostId(id_post)
+
+    if (postResult.length === 0) {
+        throw new ErrorResponse(404, 'post not found')
+    }
+    
     const checkQuery = 'SELECT COUNT(*) AS likeCount FROM post_likes WHERE id_post = ? AND id_user = ?'
     const checkResult = await dbPool.query(checkQuery, [id_post, id_user])
 
