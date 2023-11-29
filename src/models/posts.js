@@ -77,6 +77,12 @@ exports.deleteMedia = async (data) => {
         throw new ErrorResponse(404, 'post not found')
     }
 
+    const commentQuery = 'DELETE FROM post_comments WHERE id_post = ?'
+    await dbPool.execute(commentQuery, [id_post])
+
+    const likeQuery = 'DELETE FROM post_likes WHERE id_post = ?'
+    await dbPool.execute(likeQuery, [id_post])
+
     const query = 'DELETE FROM posts WHERE id_post = ?'
     return await dbPool.execute(query, [id_post])
 }

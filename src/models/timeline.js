@@ -13,7 +13,7 @@ exports.getTimeline = async (id_user) => {
     'pl.id_post, ' +
     'COUNT(pl.id_post) AS like_count ' +
     'FROM user_follow uf ' +
-    'JOIN posts p ON uf.id_following = p.id_user ' +
+    'JOIN posts p ON (uf.id_following = p.id_user OR uf.id_user = p.id_user) ' +
     'JOIN users u ON u.id_user = p.id_user ' +
     'LEFT JOIN post_comments pc ON p.id_post = pc.id_post ' +
     'LEFT JOIN post_likes pl ON p.id_post = pl.id_post ' +
