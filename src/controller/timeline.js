@@ -14,30 +14,22 @@ exports.getTimeline = async (req, res) => {
 
     const postMediaMap = new Map()
 
-    const formattedData = data.map((row) => {
-      const { username, profile_picture, post_media, caption, created_at, comment, id_post, like_count } = row
+    data.map((row) => {
+      const { username, profile_picture, id_post, post_media, caption, created_at, like_count } = row
 
-      const key = `${id_post}_${created_at}`
+      const key = id_post
 
       if (!postMediaMap.has(key)) {
         postMediaMap.set(key, {
           username,
           profile_picture,
-          postmedia: post_media,
+          id_post,
+          post_media,
           caption,
           created_at,
-          comments: [],
           like_count,
         })
       }
-
-      if (comment !== null) {
-        postMediaMap.get(key).comments.push({
-          comment,
-          date: row.comment_created_at,
-        })
-      }
-
       return null
     })
 
