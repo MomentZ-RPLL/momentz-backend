@@ -15,7 +15,7 @@ exports.getTimeline = async (req, res) => {
     const postMediaMap = new Map()
 
     data.map((row) => {
-      const { username, profile_picture, id_post, post_media, caption, created_at, like_count } = row
+      const { username, profile_picture, id_post, post_media, caption, created_at, lat, lon, like_count } = row
 
       const key = id_post
 
@@ -27,6 +27,8 @@ exports.getTimeline = async (req, res) => {
           post_media,
           caption,
           created_at,
+          lat,
+          lon,
           like_count,
         })
       }

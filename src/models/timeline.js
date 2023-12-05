@@ -9,6 +9,8 @@ exports.getTimeline = async (id_user) => {
       CONCAT("${process.env.POST_PATH}", p.post_media) as post_media,
       p.caption,
       p.created_at,
+      p.lat, 
+      p.lon,
       COUNT(pl.id_post) AS like_count
     FROM user_follow uf
       JOIN posts p ON (uf.id_following = p.id_user OR uf.id_user = p.id_user)
