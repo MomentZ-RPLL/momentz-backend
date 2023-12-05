@@ -100,9 +100,14 @@ exports.addComment = async (id_post, comment, id_user) => {
     if (postResult.length === 0) {
         throw new ErrorResponse(404, 'post not found')
     }
+
+    let is_notified = 1
+    if (postResult[0].id_user == id_user) {
+        is_notified = 0
+    }
     
     const query = 'INSERT INTO post_comments (id_post, id_user, comment, created_at, is_notified) VALUES (?,?,?,?,?)'
-    return await dbPool.query(query, [id_post, id_user, comment, getDate(), 1])
+    return await dbPool.query(query, [id_post, id_user, comment, getDate(), is_notified])
 }
 
 exports.getLikes = async (id_post) => {
@@ -141,9 +146,14 @@ exports.addLikes = async (id_post, id_user) => {
 
     const likeCount = checkResult[0][0].likeCount
 
+    let is_notified = 1
+    if (postResult[0].id_user == id_user) {
+        is_notified = 0
+    }
+
     if (likeCount === 0) {
         const insertQuery = 'INSERT INTO post_likes (id_post, id_user, created_at, is_notified) VALUES (?,?,?,?)'
-        await dbPool.query(insertQuery, [id_post, id_user, getDate(), 1])
+        await dbPool.query(insertQuery, [id_post, id_user, getDate(), is_notified])
         return true
     } else {
         return false
