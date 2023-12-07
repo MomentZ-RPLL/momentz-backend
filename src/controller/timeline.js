@@ -8,10 +8,6 @@ const ErrorResponse = require("../utils/errorResponse")
 exports.getTimeline = async (req, res) => {
   try {
     const [data] = await TimelineModels.getTimeline(req.user.id_user)
-    if (data.length === 0) {
-      throw new ErrorResponse(200, "Timeline is empty")
-    }
-
     const postMediaMap = new Map()
 
     data.map((row) => {
